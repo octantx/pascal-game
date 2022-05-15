@@ -3,6 +3,7 @@ from engine_opengl.eventlistener import EventListener
 from engine_opengl.linedef import LineDef
 from engine_opengl.solidbspnode import SolidBSPNode
 from engine_opengl.camera import Camera
+from engine_opengl.textrendering import drawText
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -93,58 +94,6 @@ polygons = [
         [80, 110, 1, 13.5],
         [80, 30, 1, 13.5]
     ]
-    
-    # open room
-    # [
-    #     # x, z, facing, height (y)
-    #     [30,  30, 0, 10],
-    #     [300, 20, 0, 10],
-    #     [400, 300, 0, 10],
-    #     [30, 200, 0, 10]
-    # ],
-    # inner col
-    # [
-    #     # x, z, facing, height (y)
-    #     [50,  50, 1, 5],
-    #     [100, 50, 1, 5],
-    #     [75,  75, 1, 5],
-    #     [100, 100, 1, 5],
-    #     [50,  100, 1, 5]
-    # ],
-    # inner room
-    # [
-    #     # x, z, facing, height (y)
-    #     [55, 55, 0, 5],
-    #     [70, 55, 0, 5],
-    #     [70, 95, 0, 5],
-    #     [55, 95, 0, 5],
-    # ],
-    # concave room 2
-    # [
-    #     # x, z, facing, height (y)
-    #     [125, 55, 1, 7],
-    #     [170, 55, 1, 7],
-    #     [170, 95, 1, 7],
-    #     [155, 95, 1, 7],
-    #     [155, 90, 1, 7],
-    #     [165, 90, 1, 7],
-    #     [165, 60, 1, 7],
-    #     [140, 60, 1, 7],
-    #     [135, 70, 1, 7],
-    # ],
-    # room, without another outward room inside
-    # [
-    #     [180, 180, 1, 1],
-    #     [230, 180, 1, 1],
-    #     [230, 230, 1, 1],
-    #     [180, 230, 1, 1],
-    # ],
-    # [
-    #     [190, 190, 1, 3],
-    #     [220, 190, 1, 3],
-    #     [220, 220, 1, 3],
-    #     [190, 220, 1, 3],
-    # ],
 ]
 
 # Create SolidBSP for Level
@@ -178,6 +127,7 @@ print(solidBsp.toText(), flush=True)
 
 # GAME SETUP
 pygame.init()
+clock = pygame.time.Clock()
 
 # get os resolution
 displayInfo = pygame.display.Info()
@@ -187,6 +137,11 @@ resolutionHeight = displayInfo.current_h
 # start with this resolution in windowed
 targetWidth = 1280
 targetHeight = 720
+targetDisplay = (1280, 720)
+pygame.display.set_mode(targetDisplay, DOUBLEBUF | OPENGL)
+font = pygame.font.SysFont('arial', 64)
+glEnable(GL_BLEND)
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 displayWidth = targetWidth
 displayHeight = targetHeight
 
@@ -196,7 +151,6 @@ pygame.mouse.set_visible(False)
 pygame.event.set_grab(True)
 glEnable(GL_BLEND); # allows for alpha transparency on color
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-font = pygame.font.Font(None, 36) # TODO not sure if we can use this
 listener = EventListener()
 camera = Camera(solidBsp)
 
@@ -369,7 +323,7 @@ def draw():
     # Cube(0, 0, 10)
     # Cube(3, -3, 15)
     
-    # Cube(0,0,0)
+    Cube(0,0,0)
 
     drawWalls(walls, camera)
 
@@ -389,6 +343,8 @@ def draw():
     glLoadIdentity()
 
     drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls)
+    
+    drawText(140, 120, "BOINGUS", font)
 
     glPopMatrix()
     # END 2D
@@ -415,72 +371,9 @@ while True:
         update()
         updateCounter += 1
         timer -= dt
-
+        
     draw()
+    
     drawCounter += 1
 
     actualTime = newTime # ms
-    #pygame.time.wait(16) # dinky 60fps
-
-    # OLD RENDERING
-    ## draw floor and ceiling
-    # floor = [
-    #    [0, display.height / 2], [display.width, display.height / 2], [display.width, display.height], [0, display.height]
-    # ]
-    # ceiling = [
-    #    [0, 0], [display.width, 0], [display.width, display.height / 2], [0, display.height / 2]
-    # ]
-    # display.drawPolygon(floor, (60, 60, 60), 0)
-    # display.drawPolygon(ceiling, (100, 100, 100), 0)
-
-    ## render 3D walls
-    #walls = []
-    #solidBsp.getWallsSorted(camera.worldX, camera.worldY, walls)
-    #for i, wall in enumerate(walls):
-    #    topLeft, topRight, bottomRight, bottomLeft = camera.projectWall(wall, display.width, display.height, i is 0)
-    #    if topLeft:
-    #        wallLines = [ topLeft, topRight, bottomRight, bottomLeft]
-    #        display.drawPolygon(wallLines, wall.drawColor, 0)
-
-    # render the top down map
-    #if mode == 0:
-    #    for lineDef in allLineDefs:
-    #        display.drawLine([lineDef.start, lineDef.end], (0, 0, 255), 1)
-    #        ln = 7
-    #        mx = lineDef.mid[0]
-    #        my = lineDef.mid[1]
-    #        nx = lineDef.normals[lineDef.facing][0] * ln
-    #        ny = lineDef.normals[lineDef.facing][1] * ln
-    #        if lineDef.facing == 1:
-    #            display.drawLine([ [mx, my] , [mx + nx, my + ny] ], (0, 255, 255), 1)
-    #        else:
-    #            display.drawLine([ [mx, my] , [mx + nx, my + ny] ], (255, 0, 255), 1)
-    #if mode == 1:
-    #    solidBsp.drawSegs(display)
-    #if mode == 2:
-    #    solidBsp.drawFaces(display, camera.worldX, camera.worldY)
-    #if mode == 3:
-    #    for wall in walls:
-    #        display.drawLine([wall.start, wall.end], (0, 40, 255), 1)
-
-    # render camera pos
-    #angleLength = 10
-    #dir = [[camera.worldX, camera.worldY], [camera.worldX + math.cos(camera.angle) * angleLength, camera.worldY + math.sin(camera.angle) * angleLength]]
-    #display.drawLine(dir, (255, 100, 255), 1)
-    #display.drawPoint([camera.worldX, camera.worldY], (255, 255, 255), 2)
-
-    # test our BSP tree
-    #inEmpty = solidBsp.inEmpty([camera.worldX, camera.worldY])
-    #display.drawPoint([display.width - 20, 20], (0,255,60) if inEmpty else (255, 0, 0), 10)
-
-    # render mouse
-    # display.drawPoint([mouseX, mouseY], (255,255,255), 2)
-
-    # draw our system information
-    #text = font.render("collision:{} camera:[{}] m:[{}, {}]".format(collisionDetection, camera, mouseX, mouseY), 1, (50, 50, 50))
-    #textpos = text.get_rect(left = 0, centery = display.height - 20)
-    #display.drawText(text, textpos)
-
-    #display.end()
-
-    #pygame.time.wait(16)
