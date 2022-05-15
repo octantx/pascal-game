@@ -1,4 +1,4 @@
-import pygame, engine_opengl, math, os
+import pygame, pascalengine, math, os
 from OpenGL.GL import *
 
 # CUBE DATA

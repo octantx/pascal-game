@@ -1,4 +1,4 @@
-from engine_opengl import linedef
+from pascalengine import linedef
 
 class SolidBSPNode(object):
     def __init__(self, lineDefs):

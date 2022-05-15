@@ -1,5 +1,5 @@
 import random
-from engine_opengl.mathdef import *
+from pascalengine.mathdef import *
 
 # A polygon is a collection of lines, each line has a direction
 # All lines should be connected, meaning one should start where the last one ends

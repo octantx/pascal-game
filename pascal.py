@@ -1,9 +1,9 @@
-import pygame, engine_opengl, math, os
-from engine_opengl.eventlistener import EventListener
-from engine_opengl.linedef import LineDef
-from engine_opengl.solidbspnode import SolidBSPNode
-from engine_opengl.camera import Camera
-from engine_opengl.textrendering import drawText
+import pygame, pascalengine, math, os
+from pascalengine.eventlistener import EventListener
+from pascalengine.linedef import LineDef
+from pascalengine.solidbspnode import SolidBSPNode
+from pascalengine.camera import Camera
+from pascalengine.textrendering import drawText
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *

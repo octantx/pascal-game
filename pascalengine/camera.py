@@ -1,5 +1,5 @@
 import pygame, math, numpy
-from engine_opengl.mathdef import *
+from pascalengine.mathdef import *
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
