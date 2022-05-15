@@ -84,57 +84,67 @@ def Cube(x, y, z):
 # Lines, each vertex connects to the next one in CW fashion
 # third element is direction its facing, when CW facing 1 = left
 polygons = [
+    
+    # ? HOUSE LAYOUT
+    
+    [
+        [30, 30, 1, 13.5],
+        [30, 110, 1 , 13.5],
+        [80, 110, 1, 13.5],
+        [80, 30, 1, 13.5]
+    ]
+    
     # open room
-    [
-        # x, z, facing, height (y)
-        [30,  30, 0, 10],
-        [300, 20, 0, 10],
-        [400, 300, 0, 10],
-        [30, 200, 0, 10]
-    ],
+    # [
+    #     # x, z, facing, height (y)
+    #     [30,  30, 0, 10],
+    #     [300, 20, 0, 10],
+    #     [400, 300, 0, 10],
+    #     [30, 200, 0, 10]
+    # ],
     # inner col
-    [
-        # x, z, facing, height (y)
-        [50,  50, 1, 5],
-        [100, 50, 1, 5],
-        [75,  75, 1, 5],
-        [100, 100, 1, 5],
-        [50,  100, 1, 5]
-    ],
+    # [
+    #     # x, z, facing, height (y)
+    #     [50,  50, 1, 5],
+    #     [100, 50, 1, 5],
+    #     [75,  75, 1, 5],
+    #     [100, 100, 1, 5],
+    #     [50,  100, 1, 5]
+    # ],
     # inner room
-    [
-        # x, z, facing, height (y)
-        [55, 55, 0, 5],
-        [70, 55, 0, 5],
-        [70, 95, 0, 5],
-        [55, 95, 0, 5],
-    ],
+    # [
+    #     # x, z, facing, height (y)
+    #     [55, 55, 0, 5],
+    #     [70, 55, 0, 5],
+    #     [70, 95, 0, 5],
+    #     [55, 95, 0, 5],
+    # ],
     # concave room 2
-    [
-        # x, z, facing, height (y)
-        [125, 55, 1, 7],
-        [170, 55, 1, 7],
-        [170, 95, 1, 7],
-        [155, 95, 1, 7],
-        [155, 90, 1, 7],
-        [165, 90, 1, 7],
-        [165, 60, 1, 7],
-        [140, 60, 1, 7],
-        [135, 70, 1, 7],
-    ],
+    # [
+    #     # x, z, facing, height (y)
+    #     [125, 55, 1, 7],
+    #     [170, 55, 1, 7],
+    #     [170, 95, 1, 7],
+    #     [155, 95, 1, 7],
+    #     [155, 90, 1, 7],
+    #     [165, 90, 1, 7],
+    #     [165, 60, 1, 7],
+    #     [140, 60, 1, 7],
+    #     [135, 70, 1, 7],
+    # ],
     # room, without another outward room inside
-    [
-        [180, 180, 1, 1],
-        [230, 180, 1, 1],
-        [230, 230, 1, 1],
-        [180, 230, 1, 1],
-    ],
-    [
-        [190, 190, 1, 3],
-        [220, 190, 1, 3],
-        [220, 220, 1, 3],
-        [190, 220, 1, 3],
-    ],
+    # [
+    #     [180, 180, 1, 1],
+    #     [230, 180, 1, 1],
+    #     [230, 230, 1, 1],
+    #     [180, 230, 1, 1],
+    # ],
+    # [
+    #     [190, 190, 1, 3],
+    #     [220, 190, 1, 3],
+    #     [220, 220, 1, 3],
+    #     [190, 220, 1, 3],
+    # ],
 ]
 
 # Create SolidBSP for Level
@@ -354,12 +364,12 @@ def draw():
     # models
     glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
 
-    Cube(20, 0, 20)
-    Cube(-3, 3, 5)
-    Cube(0, 0, 10)
-    Cube(3, -3, 15)
+    # Cube(20, 0, 20)
+    # Cube(-3, 3, 5)
+    # Cube(0, 0, 10)
+    # Cube(3, -3, 15)
     
-    Cube(0,0,0)
+    # Cube(0,0,0)
 
     drawWalls(walls, camera)
 
@@ -414,14 +424,14 @@ while True:
 
     # OLD RENDERING
     ## draw floor and ceiling
-    #floor = [
+    # floor = [
     #    [0, display.height / 2], [display.width, display.height / 2], [display.width, display.height], [0, display.height]
-    #]
-    #ceiling = [
+    # ]
+    # ceiling = [
     #    [0, 0], [display.width, 0], [display.width, display.height / 2], [0, display.height / 2]
-    #]
-    #display.drawPolygon(floor, (60, 60, 60), 0)
-    #display.drawPolygon(ceiling, (100, 100, 100), 0)
+    # ]
+    # display.drawPolygon(floor, (60, 60, 60), 0)
+    # display.drawPolygon(ceiling, (100, 100, 100), 0)
 
     ## render 3D walls
     #walls = []
