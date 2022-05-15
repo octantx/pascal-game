@@ -137,11 +137,12 @@ resolutionHeight = displayInfo.current_h
 # start with this resolution in windowed
 targetWidth = 1280
 targetHeight = 720
-targetDisplay = (1280, 720)
-pygame.display.set_mode(targetDisplay, DOUBLEBUF | OPENGL)
+
+# ? FONT DECLARATION
 font = pygame.font.SysFont('arial', 64)
 glEnable(GL_BLEND)
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
 displayWidth = targetWidth
 displayHeight = targetHeight
 
@@ -344,6 +345,7 @@ def draw():
 
     drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls)
     
+    # ? FONT RENDERING
     drawText(140, 120, "BOINGUS", font)
 
     glPopMatrix()
