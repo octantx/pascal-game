@@ -139,7 +139,8 @@ targetWidth = 1280
 targetHeight = 720
 
 # ? FONT DECLARATION
-font = pygame.font.SysFont('arial', 64)
+font = pygame.font.SysFont('arial', 16)
+colour = (255, 255, 66, 255)
 glEnable(GL_BLEND)
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -200,6 +201,7 @@ def on_f():
     pygame.event.set_grab(True)
     # reapply window matrix
     glLoadMatrixf(m)
+    
 listener.onKeyUp(pygame.K_f, on_f)
 
 # move controls
@@ -216,7 +218,6 @@ print("f (fullscreen)")
 print("up_arrow (map mode up)")
 print("down_arrow (map mode down)")
 print("wasd (movement)", flush=True)
-
 
 def drawLine(start, end, width, r, g, b, a):
     glLineWidth(width)
@@ -346,7 +347,7 @@ def draw():
     drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls)
     
     # ? FONT RENDERING
-    drawText(140, 120, "BOINGUS", font)
+    drawText(0, 0, worldPosition, font, colour)
 
     glPopMatrix()
     # END 2D
@@ -374,6 +375,8 @@ while True:
         updateCounter += 1
         timer -= dt
         
+    # ! WORLD POSITION
+    worldPosition = str(camera.worldPos)
     draw()
     
     drawCounter += 1
