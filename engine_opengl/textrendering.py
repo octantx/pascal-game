@@ -1,7 +1,5 @@
 import pygame
-from pygame.locals import *
 from OpenGL.GL import *
-from OpenGL.GLU import *
 
 def drawText(x, y, text, font, colour):                                                
     textSurface = font.render(text, True, colour).convert_alpha()

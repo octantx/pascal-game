@@ -8,85 +8,14 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-
-# CUBE DATA
-vertices= (
-    (1, -1, -1),
-    (1, 1, -1),
-    (-1, 1, -1),
-    (-1, -1, -1),
-    (1, -1, 1),
-    (1, 1, 1),
-    (-1, -1, 1),
-    (-1, 1, 1)
-)
-# maps how to connected vertices
-edges = (
-    (0,1),
-    (0,3),
-    (0,4),
-    (2,1),
-    (2,3),
-    (2,7),
-    (6,3),
-    (6,4),
-    (6,7),
-    (5,1),
-    (5,4),
-    (5,7)
-)
-# rgb in float 0-1 values
-colors = (
-    (1,0,0), #r
-    (0,1,0), #g
-    (0,0,1), #b
-    (0,1,0), #g
-    (1,1,1), #wh
-    (0,1,1), #cy
-    (1,0,0), #r
-    (0,1,0), #g
-    (0,0,1), #b
-    (1,0,0), #r
-    (1,1,1), #wh
-    (0,1,1), #cy
-)
-# surfaces are groups of vertices
-# indexes to the vertices list
-surfaces = (
-    (0,1,2,3),
-    (3,2,7,6),
-    (6,7,5,4),
-    (4,5,1,0),
-    (1,5,7,2),
-    (4,0,3,6)
-)
-
-def Cube(x, y, z):
-    # render colored surfaces as quads
-    glBegin(GL_QUADS)
-    for surface in surfaces:
-        i = 0
-        for vertex in surface:
-            i+=1
-            v = vertices[vertex]
-            glColor3fv(colors[i])
-            glVertex3f(v[0] + x, v[1] + y, v[2] + z)
-    glEnd()
-
-    # render lines between vertices
-    glBegin(GL_LINES)
-    for edge in edges:
-        for vertex in edge:
-            v = vertices[vertex]
-            glVertex3f(v[0] + x, v[1] + y, v[2] + z)
-    glEnd()
+# ? MAP ROOM CONFIGURATIONS
 
 # MAP ROOMS
 # Lines, each vertex connects to the next one in CW fashion
 # third element is direction its facing, when CW facing 1 = left
 polygons = [
     
-    # ? HOUSE LAYOUT
+    # ? 1) HOUSE LAYOUT
     
     [
         [30, 30, 1, 13.5],
@@ -95,6 +24,8 @@ polygons = [
         [80, 30, 1, 13.5]
     ]
 ]
+
+# ? COLLISION DEFINITIONS
 
 # Create SolidBSP for Level
 allLineDefs = []
@@ -125,7 +56,7 @@ for i, v in enumerate(polygons):
 solidBsp = SolidBSPNode(allLineDefs)
 print(solidBsp.toText(), flush=True)
 
-# GAME SETUP
+# ? GAME SETUP
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -161,7 +92,7 @@ glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
 camera.setPosition(110, 2, 95);
 camera.setYaw(-math.pi/2)
 
-# render mode ops
+# ? RENDER MODE OPTIONS
 mode = 0
 max_modes = 4
 collisionDetection = True
@@ -202,6 +133,7 @@ def on_f():
     # reapply window matrix
     glLoadMatrixf(m)
     
+# ? await the f key being press, if press perform the associated function
 listener.onKeyUp(pygame.K_f, on_f)
 
 # move controls
@@ -211,7 +143,7 @@ listener.onKeyHold(pygame.K_w, camera.moveForward)
 listener.onKeyHold(pygame.K_s, camera.moveBackward)
 listener.onMouseMove(camera.applyMouseMove)
 
-# info
+# ? controls and info
 print("m (mouselook)")
 print("x (noclip)")
 print("f (fullscreen)")
@@ -281,7 +213,7 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     drawLine([displayWidth/2 - 8, displayHeight/2], [displayWidth/2 - 2, displayHeight/2], 2, 1, .3, .3, 1)
     drawLine([displayWidth/2 + 2, displayHeight/2], [displayWidth/2 + 8, displayHeight/2], 2, 1, .3, .3, 1)
 
-    # collision flag dot
+    # ? NOCLIP TOGGLE INDICATOR
     if camera.collisionDetection:
         drawPoint([displayWidth - 50, 50], 10, 0, 1, 0, 1)
     else:
@@ -303,10 +235,10 @@ def update():
     camera.update()
 
 def draw():
+    
     # sort walls around camera x and z
     walls = []
     solidBsp.getWallsSorted(camera.worldPos[0], camera.worldPos[2], walls)
-
 
     # RENDER 3D
     glPushMatrix() # copies matrix below stack (in this case, our base camera matrix transformation)
@@ -324,14 +256,12 @@ def draw():
     # Cube(-3, 3, 5)
     # Cube(0, 0, 10)
     # Cube(3, -3, 15)
-    
-    Cube(0,0,0)
+    # Cube(0,0,0)
 
     drawWalls(walls, camera)
 
     glPopMatrix()
     # END 3D
-
 
     # RENDER 2D - reference this: https://stackoverflow.com/questions/43130842/python-opengl-issues-displaying-2d-graphics-over-a-3d-scene
     glPushMatrix()
@@ -340,6 +270,7 @@ def draw():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluOrtho2D(0.0, displayWidth, displayHeight, 0.0)
+    
     # models
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
@@ -366,16 +297,19 @@ while True:
     # UPDATE at fixed intervals
     newTime = pygame.time.get_ticks() # ms
     frameTime = newTime - actualTime
+    
     if frameTime > 250:
         frameTime = 250 # avoid spiral of death
+        
     timer += frameTime
+    
     while timer >= dt:
         # TODO pass delta time in seconds
         update()
         updateCounter += 1
         timer -= dt
         
-    # ! WORLD POSITION
+    # ? WORLD POSITION
     worldPosition = str(camera.worldPos)
     draw()
     
