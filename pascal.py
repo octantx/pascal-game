@@ -3,7 +3,7 @@ from pascalengine.eventlistener import EventListener
 from pascalengine.linedef import LineDef
 from pascalengine.solidbspnode import SolidBSPNode
 from pascalengine.camera import Camera
-from pascalengine.textrendering import drawText
+from pascalengine.textrendering import TextRendering
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -22,7 +22,17 @@ polygons = [
         [30, 110, 1 , 13.5],
         [80, 110, 1, 13.5],
         [80, 30, 1, 13.5]
-    ]
+    ],
+    
+    # [
+    #     [80, 84, 1, 13.5],
+    #     [77.5, 84, 1, 13.5]
+    # ],
+    
+    # [
+    #     [30, 84, 1, 13.5],
+    #     [50, 84, 1, 13.5]
+    # ]
 ]
 
 # ? COLLISION DEFINITIONS
@@ -278,7 +288,7 @@ def draw():
     drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls)
     
     # ? FONT RENDERING
-    drawText(0, 0, worldPosition, font, colour)
+    TextRendering.drawText(0, 0, worldPosition, font, colour)
 
     glPopMatrix()
     # END 2D
