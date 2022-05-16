@@ -107,22 +107,27 @@ mode = 0
 max_modes = 4
 collisionDetection = True
 fullscreen = False
+
 def mode_up():
     global mode
     mode = (mode + 1) % max_modes
 listener.onKeyUp(pygame.K_UP, mode_up)
+
 def mode_down():
     global mode
     mode = (mode - 1) % max_modes
 listener.onKeyUp(pygame.K_DOWN, mode_down)
-def on_m():
-    global camera
-    camera.toggleMouseLook()
-listener.onKeyUp(pygame.K_m, on_m)
+
+# def on_m():
+#     global camera
+#     camera.toggleMouseLook()
+# listener.onKeyUp(pygame.K_m, on_m)
+
 def on_x():
     global camera
     camera.collisionDetection = not camera.collisionDetection
 listener.onKeyUp(pygame.K_x, on_x)
+
 def on_f():
     global fullscreen, screen, displayWidth, displayHeight
     global resolutionWidth, resolutionHeight, targetWidth, targetHeight
@@ -143,7 +148,7 @@ def on_f():
     # reapply window matrix
     glLoadMatrixf(m)
     
-# ? await the f key being press, if press perform the associated function
+# ? await the f key being press, if pressed perform the associated function
 listener.onKeyUp(pygame.K_f, on_f)
 
 # move controls
