@@ -99,7 +99,7 @@ camera = Camera(solidBsp)
 
 # set base camera application for matrix
 glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
-camera.setPosition(110, 2, 95);
+camera.setPosition(72, 2, 104);
 camera.setYaw(-math.pi/2)
 
 # ? RENDER MODE OPTIONS
