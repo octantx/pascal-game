@@ -234,11 +234,16 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     drawLine(camOrigin, camNeedle, 1, 1, .5, 1, 1)
     drawPoint(camOrigin, 2, 1, 1, 1, 1)
 
-    # render crosshair
-    drawLine([displayWidth/2, displayHeight/2 - 8], [displayWidth/2, displayHeight/2 - 2], 2, 1, .3, .3, 1)
-    drawLine([displayWidth/2, displayHeight/2 + 2], [displayWidth/2, displayHeight/2 + 8], 2, 1, .3, .3, 1)
-    drawLine([displayWidth/2 - 8, displayHeight/2], [displayWidth/2 - 2, displayHeight/2], 2, 1, .3, .3, 1)
-    drawLine([displayWidth/2 + 2, displayHeight/2], [displayWidth/2 + 8, displayHeight/2], 2, 1, .3, .3, 1)
+    # ? render crosshair
+    
+    drawPoint([displayWidth/2, displayHeight/2 - 8], 3, 1, 1, 1, 1)
+    
+    # ? old crosshair
+    
+    # drawLine([displayWidth/2, displayHeight/2 - 8], [displayWidth/2, displayHeight/2 - 2], 2, 1, .3, .3, 1) # top
+    # drawLine([displayWidth/2, displayHeight/2 + 2], [displayWidth/2, displayHeight/2 + 8], 2, 1, .3, .3, 1) # bottom
+    # drawLine([displayWidth/2 - 8, displayHeight/2], [displayWidth/2 - 2, displayHeight/2], 2, 1, .3, .3, 1) # left
+    # drawLine([displayWidth/2 + 2, displayHeight/2], [displayWidth/2 + 8, displayHeight/2], 2, 1, .3, .3, 1) # right
 
     # ? NOCLIP TOGGLE INDICATOR
     if camera.collisionDetection:
