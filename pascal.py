@@ -1,12 +1,14 @@
-import pygame, pascalengine, math, os
+import pygame, pascalengine, math, os, numpy
 from pascalengine.eventlistener import EventListener
 from pascalengine.linedef import LineDef
 from pascalengine.solidbspnode import SolidBSPNode
 from pascalengine.camera import Camera
 from pascalengine.textrendering import TextRendering
+from pascalengine.texturerendering import Texture
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
+from PIL import Image
 
 # ? MAP ROOM CONFIGURATIONS
 
@@ -102,6 +104,9 @@ displayHeight = targetHeight
 
 os.environ['SDL_VIDEO_CENTERED'] = '1' # center window on screen
 screen = pygame.display.set_mode((displayWidth, displayHeight), DOUBLEBUF|OPENGL) # build window with opengl
+pygame.display.set_caption("Pascal")
+icon = pygame.image.load("textures/tim.png")
+pygame.display.set_icon(icon)
 pygame.mouse.set_visible(False)
 pygame.event.set_grab(True)
 glEnable(GL_BLEND); # allows for alpha transparency on color
@@ -178,6 +183,8 @@ print("up_arrow (map mode up)")
 print("down_arrow (map mode down)")
 print("wasd (movement)", flush=True)
 
+placeholderTexture=Texture("textures/tim.png")
+
 def drawLine(start, end, width, r, g, b, a):
     glLineWidth(width)
     glColor4f(r, g, b, a)
@@ -253,14 +260,40 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
 
 def drawWalls(walls, camera):
     for i, wall in enumerate(walls):
+        
+        glEnable(GL_TEXTURE_2D)
+        glBindTexture(GL_TEXTURE_2D,placeholderTexture.texID)
+        
         glBegin(GL_QUADS)
         c = wall.drawColor
         glColor3f(c[0]/255, c[1]/255, c[2]/255)
+        
+        glTexCoord2f(0.0,1.0)
+        glVertex3f(-1.0, 1.0,0.0)
+        
+        glTexCoord2f(1.0,1.0)
+        glVertex3f(1.0, 1.0,-1.0)
+        
+        glTexCoord2f(1.0,0.0)
+        glVertex3f(1.0, -1.0,0.0)
+        
+        glTexCoord2f(0.0,0.0)
+        glVertex3f(-1.0, -1.0,1.0)
+        
+        # glTexCoord2f(wall.start[1], 0) # ! these all need to be properly wrapped to the linedefs
         glVertex3f(wall.start[0],   0,              wall.start[1]) # low lef
+        
+        # glTexCoord2f(wall.start[0], wall.height)
         glVertex3f(wall.start[0],   wall.height,    wall.start[1]) # up lef
+        
+        # glTexCoord2f(wall.end[0], wall.end[1])
         glVertex3f(wall.end[0],     wall.height,    wall.end[1]) # up rig
+        
+        # glTexCoord2f(0, 0)
         glVertex3f(wall.end[0],     0,              wall.end[1]) # up lef
+        
         glEnd()
+        glDisable(GL_TEXTURE_2D)
 
 def update():
     listener.update()
@@ -343,6 +376,8 @@ while True:
         
     # ? WORLD POSITION
     worldPosition = str(camera.worldPos)
+    
+    # ? drawing of everything in the game
     draw()
     
     drawCounter += 1
