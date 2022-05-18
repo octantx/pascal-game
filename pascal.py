@@ -252,11 +252,11 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     # drawLine([displayWidth/2 - 8, displayHeight/2], [displayWidth/2 - 2, displayHeight/2], 2, 1, .3, .3, 1) # left
     # drawLine([displayWidth/2 + 2, displayHeight/2], [displayWidth/2 + 8, displayHeight/2], 2, 1, .3, .3, 1) # right
 
-    # ? NOCLIP TOGGLE INDICATOR
-    if camera.collisionDetection:
-        drawPoint([displayWidth - 50, 50], 10, 0, 1, 0, 1)
-    else:
-        drawPoint([displayWidth - 50, 50], 10, 1, 0, 0, 1)
+    # # ? NOCLIP TOGGLE INDICATOR
+    # if camera.collisionDetection:
+    #     drawPoint([displayWidth - 50, 50], 10, 0, 1, 0, 1)
+    # else:
+    #     drawPoint([displayWidth - 50, 50], 10, 1, 0, 0, 1)
 
 def drawWalls(walls, camera):
     for i, wall in enumerate(walls):
@@ -265,8 +265,8 @@ def drawWalls(walls, camera):
         glBindTexture(GL_TEXTURE_2D,placeholderTexture.texID)
         
         glBegin(GL_QUADS)
-        c = wall.drawColor
-        glColor3f(c[0]/255, c[1]/255, c[2]/255)
+        # c = wall.drawColor
+        # glColor3f(c[0]/255, c[1]/255, c[2]/255)
         
         glTexCoord2f(0.0,1.0)
         glVertex3f(-1.0, 1.0,0.0)
@@ -280,16 +280,16 @@ def drawWalls(walls, camera):
         glTexCoord2f(0.0,0.0)
         glVertex3f(-1.0, -1.0,1.0)
         
-        # glTexCoord2f(wall.start[1], 0) # ! these all need to be properly wrapped to the linedefs
+        glTexCoord2f(1, 0) # ! these all need to be properly wrapped to the linedefs
         glVertex3f(wall.start[0],   0,              wall.start[1]) # low lef
         
-        # glTexCoord2f(wall.start[0], wall.height)
+        glTexCoord2f(1, 1)
         glVertex3f(wall.start[0],   wall.height,    wall.start[1]) # up lef
         
-        # glTexCoord2f(wall.end[0], wall.end[1])
+        glTexCoord2f(0, 1)
         glVertex3f(wall.end[0],     wall.height,    wall.end[1]) # up rig
         
-        # glTexCoord2f(0, 0)
+        glTexCoord2f(0, 0)
         glVertex3f(wall.end[0],     0,              wall.end[1]) # up lef
         
         glEnd()
