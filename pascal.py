@@ -1,4 +1,4 @@
-import pygame, pascalengine, math, os, numpy
+import pygame, pascalengine, math, os
 from pascalengine.eventlistener import EventListener
 from pascalengine.linedef import LineDef
 from pascalengine.solidbspnode import SolidBSPNode
@@ -183,7 +183,10 @@ print("up_arrow (map mode up)")
 print("down_arrow (map mode down)")
 print("wasd (movement)", flush=True)
 
+# ! TEXTURES! (NEED A BETTER PLACE FOR THIS)
+
 placeholderTexture=Texture("textures/tim.png")
+placeholderTexture2=Texture("textures/obama.png")
 
 def drawLine(start, end, width, r, g, b, a):
     glLineWidth(width)
@@ -245,18 +248,14 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     
     drawPoint([displayWidth/2, displayHeight/2 - 8], 3, 1, 1, 1, 1)
     
-    # ? old crosshair
+    # ? CURRENT COORDS
+    TextRendering.drawText(0, 0, worldPosition, font, colour)
     
-    # drawLine([displayWidth/2, displayHeight/2 - 8], [displayWidth/2, displayHeight/2 - 2], 2, 1, .3, .3, 1) # top
-    # drawLine([displayWidth/2, displayHeight/2 + 2], [displayWidth/2, displayHeight/2 + 8], 2, 1, .3, .3, 1) # bottom
-    # drawLine([displayWidth/2 - 8, displayHeight/2], [displayWidth/2 - 2, displayHeight/2], 2, 1, .3, .3, 1) # left
-    # drawLine([displayWidth/2 + 2, displayHeight/2], [displayWidth/2 + 8, displayHeight/2], 2, 1, .3, .3, 1) # right
-
-    # # ? NOCLIP TOGGLE INDICATOR
-    # if camera.collisionDetection:
-    #     drawPoint([displayWidth - 50, 50], 10, 0, 1, 0, 1)
-    # else:
-    #     drawPoint([displayWidth - 50, 50], 10, 1, 0, 0, 1)
+    # ? NOCLIP TOGGLE INDICATOR
+    if camera.collisionDetection:
+        TextRendering.drawText(0, 20, "NOCLIP: OFF", font, colour)
+    else:
+        TextRendering.drawText(0, 20, "NOCLIP: ON", font, colour)
 
 def drawWalls(walls, camera):
     for i, wall in enumerate(walls):
@@ -267,18 +266,6 @@ def drawWalls(walls, camera):
         glBegin(GL_QUADS)
         # c = wall.drawColor
         # glColor3f(c[0]/255, c[1]/255, c[2]/255)
-        
-        glTexCoord2f(0.0,1.0)
-        glVertex3f(-1.0, 1.0,0.0)
-        
-        glTexCoord2f(1.0,1.0)
-        glVertex3f(1.0, 1.0,-1.0)
-        
-        glTexCoord2f(1.0,0.0)
-        glVertex3f(1.0, -1.0,0.0)
-        
-        glTexCoord2f(0.0,0.0)
-        glVertex3f(-1.0, -1.0,1.0)
         
         glTexCoord2f(1, 0) # ! these all need to be properly wrapped to the linedefs
         glVertex3f(wall.start[0],   0,              wall.start[1]) # low lef
@@ -291,6 +278,20 @@ def drawWalls(walls, camera):
         
         glTexCoord2f(0, 0)
         glVertex3f(wall.end[0],     0,              wall.end[1]) # up lef
+        
+        # glBindTexture(GL_TEXTURE_2D,placeholderTexture2.texID)
+        
+        glTexCoord2f(0.0,1.0)
+        glVertex3f(57, 4, 59)
+        
+        glTexCoord2f(1.0,1.0)
+        glVertex3f(59, 4, 58)
+        
+        glTexCoord2f(1.0,0.0)
+        glVertex3f(59, 2, 59)
+        
+        glTexCoord2f(0.0,0.0)
+        glVertex3f(57, 2, 60)
         
         glEnd()
         glDisable(GL_TEXTURE_2D)
@@ -342,9 +343,6 @@ def draw():
 
     drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls)
     
-    # ? FONT RENDERING
-    TextRendering.drawText(0, 0, worldPosition, font, colour)
-
     glPopMatrix()
     # END 2D
 

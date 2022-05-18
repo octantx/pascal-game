@@ -31,5 +31,3 @@ class Texture():
             pass
             # print "can't open the texture: %s"%(fileName)
             
-    def __del__(self):
-        glDeleteTextures(self.texID)
