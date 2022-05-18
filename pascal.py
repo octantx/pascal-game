@@ -37,16 +37,7 @@ polygons = [
         [80, 80, 1, 9], #15
         [80, 30, 1, 9] #16
     ],
-    
-    # [
-    #     [80, 84, 1, 13.5],
-    #     [77.5, 84, 1, 13.5]
-    # ],
-    
-    # [
-    #     [30, 84, 1, 13.5],
-    #     [50, 84, 1, 13.5]
-    # ]
+
 ]
 
 # ? COLLISION DEFINITIONS
@@ -84,39 +75,44 @@ print(solidBsp.toText(), flush=True)
 pygame.init()
 clock = pygame.time.Clock()
 
-# get os resolution
+# ? get os resolution
 displayInfo = pygame.display.Info()
 resolutionWidth = displayInfo.current_w
 resolutionHeight = displayInfo.current_h
 
-# start with this resolution in windowed
+# ? start with this resolution in windowed
 targetWidth = 1280
 targetHeight = 720
 
 # ? FONT DECLARATION
 font = pygame.font.SysFont('arial', 16)
-colour = (255, 255, 66, 255)
-glEnable(GL_BLEND)
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+# * colours!
+yellow = (255, 255, 66, 255)
 
 displayWidth = targetWidth
 displayHeight = targetHeight
 
+# ? PYGAME & OPENGL SETUPS
+
 os.environ['SDL_VIDEO_CENTERED'] = '1' # center window on screen
+
 screen = pygame.display.set_mode((displayWidth, displayHeight), DOUBLEBUF|OPENGL) # build window with opengl
 pygame.display.set_caption("Pascal")
 icon = pygame.image.load("textures/tim.png")
 pygame.display.set_icon(icon)
 pygame.mouse.set_visible(False)
 pygame.event.set_grab(True)
-glEnable(GL_BLEND); # allows for alpha transparency on color
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+glEnable(GL_BLEND) # allows for alpha transparency on color
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
 listener = EventListener()
 camera = Camera(solidBsp)
 
-# set base camera application for matrix
+# ? set base camera application for matrix
 glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
-camera.setPosition(72, 2, 104);
+camera.setPosition(72, 2.5, 104)
 camera.setYaw(-math.pi/2)
 
 # ? RENDER MODE OPTIONS
@@ -125,26 +121,33 @@ max_modes = 4
 collisionDetection = True
 fullscreen = False
 
+# ? KEY OPERATIONS
+
+# * change mode 1 up
 def mode_up():
     global mode
     mode = (mode + 1) % max_modes
+    
+# ? await mode up key
 listener.onKeyUp(pygame.K_UP, mode_up)
 
+# * change mode 1 down
 def mode_down():
     global mode
     mode = (mode - 1) % max_modes
+    
+# ? await mode up key
 listener.onKeyUp(pygame.K_DOWN, mode_down)
 
-# def on_m():
-#     global camera
-#     camera.toggleMouseLook()
-# listener.onKeyUp(pygame.K_m, on_m)
-
+# * define what happens when the x key is clicked (turns on noclip)
 def on_x():
     global camera
     camera.collisionDetection = not camera.collisionDetection
+    
+# ? await x key
 listener.onKeyUp(pygame.K_x, on_x)
 
+# * define what happens when the f key is clicked (fullscreen or back to windowed)
 def on_f():
     global fullscreen, screen, displayWidth, displayHeight
     global resolutionWidth, resolutionHeight, targetWidth, targetHeight
@@ -165,10 +168,10 @@ def on_f():
     # reapply window matrix
     glLoadMatrixf(m)
     
-# ? await the f key being press, if pressed perform the associated function
+# ? await fullscreen key
 listener.onKeyUp(pygame.K_f, on_f)
 
-# move controls
+# ? move controls
 listener.onKeyHold(pygame.K_a, camera.strafeLeft)
 listener.onKeyHold(pygame.K_d, camera.strafeRight)
 listener.onKeyHold(pygame.K_w, camera.moveForward)
@@ -185,9 +188,10 @@ print("wasd (movement)", flush=True)
 
 # ! TEXTURES! (NEED A BETTER PLACE FOR THIS)
 
-placeholderTexture=Texture("textures/tim.png")
-placeholderTexture2=Texture("textures/obama.png")
+placeholderTexture=Texture("textures/wall.png")
+placeholderTexture2=Texture("textures/tim.png")
 
+# ? define how lines are drawn
 def drawLine(start, end, width, r, g, b, a):
     glLineWidth(width)
     glColor4f(r, g, b, a)
@@ -196,6 +200,7 @@ def drawLine(start, end, width, r, g, b, a):
     glVertex2f(end[0], end[1])
     glEnd()
 
+# ? define how points are drawn
 def drawPoint(pos, radius, r, g, b, a):
     glColor4f(r, g, b, a)
     glBegin(GL_TRIANGLE_FAN)
@@ -207,6 +212,7 @@ def drawPoint(pos, radius, r, g, b, a):
         glVertex2f(x2, y2);
     glEnd()
 
+# ? define how everything is drawn in the hud
 def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     # wall lines
     # walls are position in with start and in in the x and z coordinates
@@ -249,14 +255,15 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     drawPoint([displayWidth/2, displayHeight/2 - 8], 3, 1, 1, 1, 1)
     
     # ? CURRENT COORDS
-    TextRendering.drawText(0, 0, worldPosition, font, colour)
+    TextRendering.drawText(0, 0, worldPosition, font, yellow)
     
     # ? NOCLIP TOGGLE INDICATOR
     if camera.collisionDetection:
-        TextRendering.drawText(0, 20, "NOCLIP: OFF", font, colour)
+        TextRendering.drawText(0, 20, "NOCLIP: OFF", font, yellow)
     else:
-        TextRendering.drawText(0, 20, "NOCLIP: ON", font, colour)
-
+        TextRendering.drawText(0, 20, "NOCLIP: ON", font, yellow)
+        
+# ? define how walls are drawn
 def drawWalls(walls, camera):
     for i, wall in enumerate(walls):
         
@@ -267,7 +274,7 @@ def drawWalls(walls, camera):
         # c = wall.drawColor
         # glColor3f(c[0]/255, c[1]/255, c[2]/255)
         
-        glTexCoord2f(1, 0) # ! these all need to be properly wrapped to the linedefs
+        glTexCoord2f(1, 0)
         glVertex3f(wall.start[0],   0,              wall.start[1]) # low lef
         
         glTexCoord2f(1, 1)
@@ -279,27 +286,38 @@ def drawWalls(walls, camera):
         glTexCoord2f(0, 0)
         glVertex3f(wall.end[0],     0,              wall.end[1]) # up lef
         
-        # glBindTexture(GL_TEXTURE_2D,placeholderTexture2.texID)
-        
-        glTexCoord2f(0.0,1.0)
-        glVertex3f(57, 4, 59)
-        
-        glTexCoord2f(1.0,1.0)
-        glVertex3f(59, 4, 58)
-        
-        glTexCoord2f(1.0,0.0)
-        glVertex3f(59, 2, 59)
-        
-        glTexCoord2f(0.0,0.0)
-        glVertex3f(57, 2, 60)
-        
         glEnd()
         glDisable(GL_TEXTURE_2D)
+        
+# ? placeholder texture and associated 3 vertices for testing purposes
+def drawTim(camera):
+    
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D,placeholderTexture2.texID)
+        
+    glBegin(GL_QUADS)
+    
+    glTexCoord2f(0.0,1.0)
+    glVertex3f(57, 4, 59)
+    
+    glTexCoord2f(1.0,1.0)
+    glVertex3f(59, 4, 58)
+    
+    glTexCoord2f(1.0,0.0)
+    glVertex3f(59, 2, 59)
+    
+    glTexCoord2f(0.0,0.0)
+    glVertex3f(57, 2, 60)
+    
+    glEnd()
+    glDisable(GL_TEXTURE_2D)
 
+# ? catch all update functions into one
 def update():
     listener.update()
     camera.update()
 
+# ? define everything to be drawn in the game
 def draw():
     
     # sort walls around camera x and z
@@ -324,8 +342,9 @@ def draw():
     # Cube(3, -3, 15)
     # Cube(0,0,0)
 
+    drawTim(camera)
     drawWalls(walls, camera)
-
+    
     glPopMatrix()
     # END 3D
 
@@ -367,7 +386,6 @@ while True:
     timer += frameTime
     
     while timer >= dt:
-        # TODO pass delta time in seconds
         update()
         updateCounter += 1
         timer -= dt
