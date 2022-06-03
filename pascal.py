@@ -8,7 +8,6 @@ from pascalengine.texturerendering import Texture
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from PIL import Image
 
 # ? MAP ROOM CONFIGURATIONS
 
@@ -143,6 +142,16 @@ listener.onKeyUp(pygame.K_DOWN, mode_down)
 def on_x():
     global camera
     camera.collisionDetection = not camera.collisionDetection
+    camera.lockFlight = not camera.lockFlight
+    
+    # ! doesn't feel like working, return to later
+    # worldPosition = camera.findWorldPos()
+    # print(worldPosition)
+
+    # if camera.lockFlight == False:
+        
+    #     worldPosition[1] = 2.5
+    #     camera.setPosition(worldPosition[0], worldPosition[1], worldPosition[2])
     
 # ? await x key
 listener.onKeyUp(pygame.K_x, on_x)
@@ -188,8 +197,9 @@ print("wasd (movement)", flush=True)
 
 # ! TEXTURES! (NEED A BETTER PLACE FOR THIS)
 
-placeholderTexture=Texture("textures/wall.png")
-placeholderTexture2=Texture("textures/tim.png")
+Texture1=Texture("textures/wall.png")
+Texture2=Texture("textures/carpet.png")
+Texture3=Texture("textures/ceiling.png")
 
 # ? define how lines are drawn
 def drawLine(start, end, width, r, g, b, a):
@@ -247,6 +257,7 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     camOrigin = [camera.worldPos[0] + offsetX, camera.worldPos[2] + offsetY] # mapX is worldX, mapY is worldZ
     camNeedle = [camOrigin[0] + math.cos(camera.yaw - math.pi/2) * angleLength, camOrigin[1] + math.sin(camera.yaw - math.pi/2) * angleLength]
     # yaw at 0 is straight down the positive z, which is down mapY
+    # ? draw player on mini map
     drawLine(camOrigin, camNeedle, 1, 1, .5, 1, 1)
     drawPoint(camOrigin, 2, 1, 1, 1, 1)
 
@@ -263,12 +274,12 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     else:
         TextRendering.drawText(0, 20, "NOCLIP: ON", font, yellow)
         
-# ? define how walls are drawn
+# ? define which walls are drawn
 def drawWalls(walls, camera):
     for i, wall in enumerate(walls):
         
         glEnable(GL_TEXTURE_2D)
-        glBindTexture(GL_TEXTURE_2D,placeholderTexture.texID)
+        glBindTexture(GL_TEXTURE_2D,Texture1.texID)
         
         glBegin(GL_QUADS)
         # c = wall.drawColor
@@ -290,24 +301,46 @@ def drawWalls(walls, camera):
         glDisable(GL_TEXTURE_2D)
         
 # ? placeholder texture and associated 3 vertices for testing purposes
-def drawTim(camera):
+def drawFloor(textures, camera):
     
     glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D,placeholderTexture2.texID)
+    glBindTexture(GL_TEXTURE_2D,Texture2.texID)
         
     glBegin(GL_QUADS)
     
     glTexCoord2f(0.0,1.0)
-    glVertex3f(57, 4, 59)
+    glVertex3f(80, 0, 110)
     
     glTexCoord2f(1.0,1.0)
-    glVertex3f(59, 4, 58)
+    glVertex3f(30, 0, 110)
     
     glTexCoord2f(1.0,0.0)
-    glVertex3f(59, 2, 59)
+    glVertex3f(30, 0, 30)
     
     glTexCoord2f(0.0,0.0)
-    glVertex3f(57, 2, 60)
+    glVertex3f(80, 0, 30)
+    
+    glEnd()
+    glDisable(GL_TEXTURE_2D)
+    
+def drawCeiling(textures, camera):
+    
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D,Texture3.texID)
+        
+    glBegin(GL_QUADS)
+    
+    glTexCoord2f(0.0,1.0)
+    glVertex3f(80, 9, 110)
+    
+    glTexCoord2f(1.0,1.0)
+    glVertex3f(30, 9, 110)
+    
+    glTexCoord2f(1.0,0.0)
+    glVertex3f(30, 9, 30)
+    
+    glTexCoord2f(0.0,0.0)
+    glVertex3f(80, 9, 30)
     
     glEnd()
     glDisable(GL_TEXTURE_2D)
@@ -322,7 +355,9 @@ def draw():
     
     # sort walls around camera x and z
     walls = []
+    textures = []
     solidBsp.getWallsSorted(camera.worldPos[0], camera.worldPos[2], walls)
+    solidBsp.getTexturesSorted(camera.worldPos[0], camera.worldPos[2], textures) 
 
     # RENDER 3D
     glPushMatrix() # copies matrix below stack (in this case, our base camera matrix transformation)
@@ -342,8 +377,9 @@ def draw():
     # Cube(3, -3, 15)
     # Cube(0,0,0)
 
-    drawTim(camera)
     drawWalls(walls, camera)
+    drawFloor(textures, camera)
+    drawCeiling(textures, camera)
     
     glPopMatrix()
     # END 3D

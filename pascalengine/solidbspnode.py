@@ -117,12 +117,26 @@ class SolidBSPNode(object):
             # to switch to doom algorithm (requires clipping) swap front and back orders
             if behind:
                 self.front.getWallsSorted(posA, posB, walls, depth + 1)
-                # walls.append(self.splitter)
+                walls.append(self.splitter)
                 self.back.getWallsSorted(posA, posB, walls, depth + 1)
             else:
                 self.back.getWallsSorted(posA, posB, walls, depth + 1)
                 walls.append(self.splitter)
                 self.front.getWallsSorted(posA, posB, walls, depth + 1)
+
+    def getTexturesSorted(self, posA, posB, textures, depth = 0):
+        if not self.isLeaf:
+            behind = self.splitter.isPointBehind(posA, posB)
+            
+            if behind:
+                self.front.getWallsSorted(posA, posB, textures, depth + 1)
+                textures.append(self.splitter)
+                self.back.getWallsSorted(posA, posB, textures, depth + 1)
+            else:
+                self.back.getWallsSorted(posA, posB, textures, depth + 1)
+                textures.append(self.splitter)
+                self.front.getWallsSorted(posA, posB, textures, depth + 1)
+
 
     def drawWalls(self, camera, display, depth = 0):
         if self.isLeaf == False:

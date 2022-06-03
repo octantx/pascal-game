@@ -21,7 +21,6 @@ class Camera(object):
         self.yaw = 0
         self.yawDelta = 0
         # locks
-        self.lockMouseLook = True
         self.lockFlight = True
 
     def moveForward(self):
@@ -47,13 +46,6 @@ class Camera(object):
 
     def setYaw(self, yawRadians):
         self.yawDelta = rad2deg(yawRadians) / self.lookSpeed
-
-    # def toggleMouseLook(self):
-    #     self.lockMouseLook = not self.lockMouseLook
-    #     if self.lockMouseLook:
-    #         # point camera back to horizon
-    #         # todo this is not perfect, it does not accurately reset to perfect zero
-    #         self.pitchDelta -= rad2deg(self.pitch) / self.lookSpeed
 
     def checkMove(self):
         wp = self.findWorldPos()
