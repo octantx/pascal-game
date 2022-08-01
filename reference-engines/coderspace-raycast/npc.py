@@ -171,9 +171,9 @@ class NPC(AnimatedSprite):
             depth_vert += delta_depth
 
         player_dist = max(player_dist_v, player_dist_h)
-        wall_dist = max(wall_dist_v, wall_dist_h)
+        # wall_dist = max(wall_dist_v, wall_dist_h)
 
-        if 0 < player_dist < wall_dist or not wall_dist:
+        if 0 < player_dist:
             return True
         return False
 

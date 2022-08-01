@@ -3,7 +3,7 @@ from pascalengine.eventlistener import EventListener
 from pascalengine.player import Camera
 from pascalengine.spriterenderer import Text
 from pascalengine.texturerenderer import Texture
-from pascalengine.cube import *
+from pascalengine.cube import Cube
 from maps.levels import *
 from pygame.locals import *
 from OpenGL.GL import *
@@ -55,6 +55,7 @@ glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 listener = EventListener()
 camera = Camera(solidBsp)
+cubeclass = Cube()
 
 # ? set base camera application for matrix
 glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
@@ -120,11 +121,13 @@ def on_f():
 # ? await fullscreen key
 listener.onKeyUp(pygame.K_f, on_f)
 
-dialoge = False
+isDashing = False
 
 def on_space():
-    dialogue = True
-    return dialogue
+    if isDashing == True:
+        isDashing = False
+    else:
+        isDashing = False
 
 listener.onKeyUp(pygame.K_SPACE, on_space)
 
@@ -138,7 +141,6 @@ listener.onMouseMove(camera.applyMouseMove)
 # ! ------------------------------------------------------------------------------------------------------------------
 
 # ? controls and info
-print("m (mouselook)")
 print("x (noclip)")
 print("f (fullscreen)")
 print("up_arrow (map mode up)")
@@ -182,10 +184,15 @@ def drawPoint(pos, radius, r, g, b, a):
     glEnd()
 
 # ? define how everything is drawn in the hud
-def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
+def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, enemies):
     # wall lines
     # walls are position in with start and in in the x and z coordinates
     if mode == 0:
+        for wall in walls:
+            start = [wall.start[0] + offsetX, wall.start[1] + offsetY];
+            end = [wall.end[0] + offsetX, wall.end[1] + offsetY];
+            drawLine(start, end, 1.5, 0, 1, 0.2, 1)
+    if mode == 1:
         for lineDef in allLineDefs:
             # draw wall
             mapStart = [lineDef.start[0] + offsetX, lineDef.start[1] + offsetY]
@@ -201,15 +208,14 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
                 drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 0.0, 1.0, 1.0, 1.0)
             else:
                 drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 1.0, 0.0, 1.0, 1.0)
-    if mode == 1:
-        solidBsp.drawSegs(drawLine, offsetX, offsetY)
     if mode == 2:
-        solidBsp.drawFaces(drawLine, camera.worldPos[0], camera.worldPos[2], offsetX, offsetY)
+        solidBsp.drawSegs(drawLine, offsetX, offsetY)
     if mode == 3:
-        for wall in walls:
-            start = [wall.start[0] + offsetX, wall.start[1] + offsetY];
-            end = [wall.end[0] + offsetX, wall.end[1] + offsetY];
-            drawLine(start, end, 1, 0, .3, 1, 1)
+        solidBsp.drawFaces(drawLine, camera.worldPos[0], camera.worldPos[2], offsetX, offsetY)
+            
+    for i, v in enumerate(enemies):
+        
+        drawPoint((enemies[i][0] + offsetX, enemies[i][1] + offsetY), 2, 1, 0, 0, 1)
 
     # camera
     angleLength = 10
@@ -231,12 +237,12 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls):
     drawLine([displayWidth/2-8, displayHeight/2], [displayWidth/2-2, displayHeight/2], 2, .3, 1, .3, 1)
     drawLine([displayWidth/2+2, displayHeight/2], [displayWidth/2+8, displayHeight/2], 2, .3, 1, .3, 1)
     
-    Text.drawImage('final-build/assets/sprites/awp.png', defaultInfo)
+    # Text.drawImage('final-build/assets/textures/tim.png', defaultInfo)
     
     # Text.dialogue(0, "Hey welcome to ben, my namea jeff and i love to ben in the ben house! yeah oooo yeah and if you enter my house without entering the password i will have to beat you to death with a rock yeah yeah oh yeah yeah!", defaultInfo)
 
     if dialogue == True:
-        Text.dialogue(0, "wow you have a very nice looking mother", defaultInfo)
+        Text.dialogue(0, "OH NO OH AH AH OH NO THE FDA ARE GOING TO! TO RAID MY HOUSE!", defaultInfo)
 
     # ? CURRENT COORDS
     Text.drawText(0, 0, worldPosition, font, yellow)
@@ -276,56 +282,8 @@ def drawWalls(walls):
         
 def drawEnemies(enemies):
     for i, enemy in enumerate(enemies):
+        cubeclass.cubeDraw(enemies[i][0], 2, enemies[i][1], enemies[i][2])
         
-        Cube(75, 2, 75, red)
-        Cube(75, 2, 55, green)
-        Cube(75, 2, 35, blue)
-        
-# ? placeholder texture and associated 3 vertices for testing purposes
-# def drawFloor(textures, camera):
-    
-#     glEnable(GL_TEXTURE_2D)
-#     glBindTexture(GL_TEXTURE_2D,Texture2.texID)
-        
-#     glBegin(GL_QUADS)
-    
-#     glTexCoord2f(0.0,1.0)
-#     glVertex3f(80, 0, 110)
-    
-#     glTexCoord2f(1.0,1.0)
-#     glVertex3f(30, 0, 110)
-    
-#     glTexCoord2f(1.0,0.0)
-#     glVertex3f(30, 0, 30)
-    
-#     glTexCoord2f(0.0,0.0)
-#     glVertex3f(80, 0, 30)
-    
-#     glEnd()
-#     glDisable(GL_TEXTURE_2D)
-    
-# def drawCeiling(textures, camera):
-    
-#     glEnable(GL_TEXTURE_2D)
-#     glBindTexture(GL_TEXTURE_2D,Texture3.texID)
-        
-#     glBegin(GL_QUADS)
-    
-#     glTexCoord2f(0.0,1.0)
-#     glVertex3f(80, 9, 110)
-    
-#     glTexCoord2f(1.0,1.0)
-#     glVertex3f(30, 9, 110)
-    
-#     glTexCoord2f(1.0,0.0)
-#     glVertex3f(30, 9, 30)
-    
-#     glTexCoord2f(0.0,0.0)
-#     glVertex3f(80, 9, 30)
-    
-#     glEnd()
-#     glDisable(GL_TEXTURE_2D)
-
 # ? catch all update functions into one
 def update():
     listener.update()
@@ -351,8 +309,7 @@ def draw():
     glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
 
     drawWalls(walls)
-    # drawFloor(textures, camera)
-    # drawCeiling(textures, camera)
+    drawEnemies(map0enemies)
 
     glPopMatrix()
     # END 3D
@@ -369,7 +326,7 @@ def draw():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls)
+    drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls, map0enemies)
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
     glPopMatrix()
@@ -385,7 +342,6 @@ dt = int(1 / FPS * 1000) # 60 fps in ms
 updateCounter = 0
 drawCounter = 0
 coolX = 75
-
 # ? game loop
 while True:
 

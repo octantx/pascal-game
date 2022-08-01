@@ -1,110 +1,137 @@
 import pygame, pascalengine, math, os
+from pascalengine.player import Camera
 from OpenGL.GL import *
 
-# CUBE DATA
-vertices= (
-    (1, -1, -1),
-    (1, 1, -1),
-    (-1, 1, -1),
-    (-1, -1, -1),
-    (1, -1, 1),
-    (1, 1, 1),
-    (-1, -1, 1),
-    (-1, 1, 1)
-)
-# maps how to connected vertices
-edges = (
-    (0,1),
-    (0,3),
-    (0,4),
-    (2,1),
-    (2,3),
-    (2,7),
-    (6,3),
-    (6,4),
-    (6,7),
-    (5,1),
-    (5,4),
-    (5,7)
-)
-# rgb in float 0-1 values
-red = (
-    (1,0,0), #r
-    (0,0,0), #r
-    (0,0,0), #r
-    (1,0,0), #r
-    (1,0,0.6), #r
-    (1,0,0), #r
-    (1,0,0), #r
-    (1,0,0), #r
-    (1,0,0), #r
-    (1,0,0), #r
-    (1,0,0), #r
-)
+class Cube():
+    
+    def __init__(self):
+        self.hit = False
+        # CUBE DATA
+        self.vertices= (
+            (1, -1, -1),
+            (1, 1, -1),
+            (-1, 1, -1),
+            (-1, -1, -1),
+            (1, -1, 1),
+            (1, 1, 1),
+            (-1, -1, 1),
+            (-1, 1, 1)
+        )
+        # maps how to connected vertices
+        self.edges = (
+            (0,1),
+            (0,3),
+            (0,4),
+            (2,1),
+            (2,3),
+            (2,7),
+            (6,3),
+            (6,4),
+            (6,7),
+            (5,1),
+            (5,4),
+            (5,7)
+        )
+        # rgb in float 0-1 values
+        self.r = (
+            (1,0,0), #r
+            (0,0,0), #r
+            (0,0,0), #r
+            (1,0,0), #r
+            (1,0,0.6), #r
+            (1,0,0), #r
+            (1,0,0), #r
+            (1,0,0), #r
+            (1,0,0), #r
+            (1,0,0), #r
+            (1,0,0), #r
+        )
+        self.g = (
+            (0,1,0), #r
+            (0,0,0), #r
+            (0,0,0), #r
+            (0,1,0), #r
+            (0,1,0.6), #r
+            (0,1,0), #r
+            (0,1,0), #r
+            (0,1,0), #r
+            (0,1,0), #r
+            (0,1,0), #r
+            (0,1,0), #r
+        )
+        self.b = (
+            (0,0,1), #r
+            (0,0,0), #r
+            (0,0,0), #r
+            (0,0,1), #r
+            (0,0.6,1), #r
+            (0,0,1), #r
+            (0,0,1), #r
+            (0,0,1), #r
+            (0,0,1), #r
+            (0,0,1), #r
+            (0,0,1), #r
+        )
+        # surfaces are groups of vertices
+        # indexes to the vertices list
+        self.surfaces = (
+            (0,1,2,3),
+            (3,2,7,6),
+            (6,7,5,4),
+            (4,5,1,0),
+            (1,5,7,2),
+            (4,0,3,6)
+        )
 
-green = (
-    (0,1,0), #r
-    (0,0,0), #r
-    (0,0,0), #r
-    (0,1,0), #r
-    (0,1,0.6), #r
-    (0,1,0), #r
-    (0,1,0), #r
-    (0,1,0), #r
-    (0,1,0), #r
-    (0,1,0), #r
-    (0,1,0), #r
-)
+    def cubeDraw(self, x, y, z, colour):
+        # render colored surfaces as quads
+        glBegin(GL_QUADS)
+        for surface in self.surfaces:
+            i = 0
+            for vertex in surface:
+                i+=1
+                v = self.vertices[vertex]
 
-blue = (
-    (0,0,1), #r
-    (0,0,0), #r
-    (0,0,0), #r
-    (0,0,1), #r
-    (0,0.6,1), #r
-    (0,0,1), #r
-    (0,0,1), #r
-    (0,0,1), #r
-    (0,0,1), #r
-    (0,0,1), #r
-    (0,0,1), #r
-)
+                if colour == 'r':
+                    glColor3fv(self.r[i])
 
+                elif colour == 'g':
+                    glColor3fv(self.g[i])
 
-# surfaces are groups of vertices
-# indexes to the vertices list
-surfaces = (
-    (0,1,2,3),
-    (3,2,7,6),
-    (6,7,5,4),
-    (4,5,1,0),
-    (1,5,7,2),
-    (4,0,3,6)
-)
+                elif colour == 'b':
+                    glColor3fv(self.b[i])
+                    
+                else:
+                    print("incorrect colour")
+                    
+                if self.hit == True:
+                    glColor3fv(self.g[i])
+                    
+                glVertex3f(v[0] + x, v[1] + y, v[2] + z)
+        glEnd()
 
-def Cube(x, y, z, colour):
-    # render colored surfaces as quads
-    glBegin(GL_QUADS)
-    for surface in surfaces:
-        i = 0
-        for vertex in surface:
-            i+=1
-            v = vertices[vertex]
-            if colour == red:
-                glColor3fv(red[i])
-            elif colour == green:
-                glColor3fv(green[i])
-            elif colour == blue:
-                glColor3fv(blue[i])
-            else:
-                print("incorrect colour")
-            glVertex3f(v[0] + x, v[1] + y, v[2] + z)
-    glEnd()
+        # render lines between vertices
+        glBegin(GL_LINES)
+        for edge in self.edges:
+            for vertex in edge:
+                v = self.vertices[vertex]
+                glVertex3f(v[0] + x, v[1] + y, v[2] + z)
+        glEnd()
 
-    # render lines between vertices
-    glBegin(GL_LINES)
-    for edge in edges:
-        for vertex in edge:
-            v = vertices[vertex]
-            glVertex3f(v[0] + x, v[1] + y, v[2] + z)
-    glEnd()
+    # playerPosition = Camera.worldPos
+    # cubePosition = Camera.findWorldPos()
+
+    # def raycastEnemy():
+    #     if playerPosition == cubePosition:
+    #             return True
+
+    #     wall_dist_v, wall_dist_h = 0, 0
+    #     player_dist_v, player_dist_h = 0, 0
+
+    #     ox, oy = self.game.player.pos
+    #     x_map, y_map = self.game.player.map_pos
+
+    #     ray_angle = self.theta
+
+    #     sin_a = math.sin(ray_angle)
+    #     cos_a = math.cos(ray_angle)
