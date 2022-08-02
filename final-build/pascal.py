@@ -124,8 +124,9 @@ listener.onKeyUp(pygame.K_f, on_f)
 isDashing = False
 
 def on_space():
-    if isDashing == True:
-        isDashing = False
+    global isDashing
+    if isDashing == False:
+        isDashing = True
     else:
         isDashing = False
 
@@ -254,6 +255,10 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
         Text.drawText(0, 20, "NOCLIP: ON", font, yellow)
         
     Text.drawText(0, 40, f"FPS: {currentFPS}", font, yellow)
+    
+    Text.drawText(0, 60, f"SPEED: {currentSpeed}", font, yellow)
+    
+    Text.drawText(0,80, str(var), font, yellow)
         
 # ? define which walls are drawn
 def drawWalls(walls):
@@ -341,7 +346,8 @@ FPS = 60
 dt = int(1 / FPS * 1000) # 60 fps in ms
 updateCounter = 0
 drawCounter = 0
-coolX = 75
+var = 0
+dashLength = 5
 # ? game loop
 while True:
 
@@ -365,6 +371,19 @@ while True:
     # ? fps
     clock.tick(FPS)
     currentFPS = str(round(clock.get_fps()))
+    
+    # # ? speed 
+    currentSpeed = str(camera.moveSpeed)
+    
+    if isDashing:
+        var = var + 1
+        while var < dashLength:
+            camera.moveSpeed = 2
+            break
+        if var > dashLength:
+            camera.moveSpeed = .65
+            var = 0
+            isDashing = False
     
     # ? drawing of everything in the game
     draw()

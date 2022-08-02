@@ -19,7 +19,7 @@ class Camera(object):
         self.gravity = 20.0
         self.friction = 6
         # move
-        self.moveSpeed = .85
+        self.moveSpeed = .65
         self.moveDir = [0, 0] # x,y or strafe/fwd
         self.worldPos = [0, 0, 0] # x, y, z
         self.runAcceleration = 14.0
