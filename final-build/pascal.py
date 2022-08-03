@@ -12,11 +12,9 @@ from OpenGL.GLU import *
 mapReturnees = createBSP(map0)
 solidBsp = mapReturnees[0]
 allLineDefs = mapReturnees[1]
+aliveCubes = map0enemies.copy()
 
 # ! ------------------------------------------------------------------------------------------------------------------
-def setup():
-    pass
-
 # ? GAME SETUP
 pygame.init()
 clock = pygame.time.Clock()
@@ -131,6 +129,12 @@ def on_space():
         isDashing = False
 
 listener.onKeyUp(pygame.K_SPACE, on_space)
+
+def on_r():
+    global aliveCubes
+    aliveCubes = map0enemies
+
+listener.onKeyUp(pygame.K_r, on_r)
 
 # ? move controls
 listener.onKeyHold(pygame.K_a, camera.strafeLeft)
@@ -258,7 +262,11 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
     
     Text.drawText(0, 60, f"SPEED: {currentSpeed}", font, yellow)
     
-    Text.drawText(0,80, str(var), font, yellow)
+    Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", font, yellow)
+    
+    Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", font, yellow)
+    
+    # Text.drawText(0, 120, margin, font, yellow)
         
 # ? define which walls are drawn
 def drawWalls(walls):
@@ -314,7 +322,7 @@ def draw():
     glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
 
     drawWalls(walls)
-    drawEnemies(map0enemies)
+    drawEnemies(aliveCubes)
 
     glPopMatrix()
     # END 3D
@@ -331,7 +339,7 @@ def draw():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls, map0enemies)
+    drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls, aliveCubes)
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
     glPopMatrix()
@@ -341,6 +349,10 @@ def draw():
     pygame.display.flip() # buffer swap
 
 timer = 0
+counter = 0
+marginCount = 0
+completionTime = 0
+levelTime = 30
 actualTime = pygame.time.get_ticks() # ms
 FPS = 60
 dt = int(1 / FPS * 1000) # 60 fps in ms
@@ -375,16 +387,46 @@ while True:
     # # ? speed 
     currentSpeed = str(camera.moveSpeed)
     
+    # ? dash:
+    referencePos = camera.worldPos.copy()
+    referencePos.pop(1)
+    total = len(referencePos)
+    
     if isDashing:
-        var = var + 1
+        for idx, v, in enumerate(aliveCubes):
+            for i in range(total):
+                if abs(referencePos[i] - aliveCubes[idx][i]) > 2:
+                    marginCount += 1
+                    
+            if total > 0:
+                margin = marginCount / total
+                marginCount = 0
+            else:
+                margin = 1.0
+                marginCount = 0
+                
+            if round(referencePos[0]) == aliveCubes[idx][0] and round(referencePos[1]) == aliveCubes[idx][1] or margin < .25:
+                aliveCubes.pop(idx)
+                
+        var += 1
         while var < dashLength:
             camera.moveSpeed = 2
             break
         if var > dashLength:
             camera.moveSpeed = .65
             var = 0
-            isDashing = False
+            isDashing = False 
+            
     
+                
+    # ? time it took to complete level and time remaining in the level
+    counter += 1
+    if counter == 60:
+        completionTime += 1
+        if levelTime != 0:
+            levelTime -= 1
+        counter = 0
+        
     # ? drawing of everything in the game
     draw()
     
