@@ -117,21 +117,3 @@ class Cube():
                 v = self.vertices[vertex]
                 glVertex3f(v[0] + x, v[1] + y, v[2] + z)
         glEnd()
-
-    # playerPosition = Camera.worldPos
-    # cubePosition = Camera.findWorldPos()
-
-    # def raycastEnemy():
-    #     if playerPosition == cubePosition:
-    #             return True
-
-    #     wall_dist_v, wall_dist_h = 0, 0
-    #     player_dist_v, player_dist_h = 0, 0
-
-    #     ox, oy = self.game.player.pos
-    #     x_map, y_map = self.game.player.map_pos
-
-    #     ray_angle = self.theta
-
-    #     sin_a = math.sin(ray_angle)
-    #     cos_a = math.cos(ray_angle)
