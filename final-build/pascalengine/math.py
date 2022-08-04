@@ -1,5 +1,10 @@
 import math
 
+def toFps(seconds):
+    
+    seconds *= 60
+    return seconds
+
 def crossProductLine(a, b):
     return a[0] * b[1] - a[1] * b[0]
     #{   return (p.x*q.y - p.y*q.x); }

@@ -36,13 +36,8 @@ def createBSP(polygons):
 # # Lines, each vertex connects to the next one in CW fashion
 # # third element is direction its facing, when CW facing 1 = left
 
-map0 = [
-    
-    # ? 1) HOUSE LAYOUT
-    
-        # ? X, Y, 0 = right 1 = left, HEIGHT
+mapMoogus = [
     [
-        # ? amoogus
         # [30, 30, 1, 9], #1
         # [30, 80, 1, 9], #2
         # [42.5, 80, 1, 9], #3
@@ -59,17 +54,30 @@ map0 = [
         # [67.5, 80, 1, 9], #14
         # [80, 80, 1, 9], #15
         # [80, 30, 1, 9] #16
-        
-        # ? test map
-        [30, 30, 0, 5], # 1
-        [130, 30, 0, 5], # 2
-        [130, 130, 0, 5], # 4
-        [30, 130, 0, 5], # 3
-    ],
+    ]
 ]
 
+map0 = [
+    
+    # ? 1) HOUSE LAYOUT
+    
+        # ? X, Y, 0 = right 1 = left, HEIGHT
+    [
+        # ? beginning section
+        [30, 30, 0, 5, 1], # 1
+        [90, 30, 0, 5, 1], # 2
+        [90, 90, 0, 5, 1], # 4
+        [30, 90, 0, 5, 1], # 3
+    ],
+]
 map0enemies = [
-    [75, 75, 'r'],
-    [75, 55, 'r'],
-    [75, 35, 'r']
+    [60, 60, 'w'],
+    # [75, 55, 'r'],
+    # [75, 35, 'r']
+]
+
+map1 =  [
+    [
+        []
+    ]
 ]

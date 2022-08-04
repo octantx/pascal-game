@@ -1,9 +1,11 @@
+from re import A
 import pygame, pascalengine, math, os
 from pascalengine.eventlistener import EventListener
 from pascalengine.player import Camera
 from pascalengine.spriterenderer import Text
 from pascalengine.texturerenderer import Texture
 from pascalengine.cube import Cube
+from pascalengine.math import *
 from maps.levels import *
 from pygame.locals import *
 from OpenGL.GL import *
@@ -29,10 +31,15 @@ targetWidth = 1280
 targetHeight = 720
 
 # ? FONT DECLARATION
-font = pygame.font.SysFont('arial', 16)
+debugFont = pygame.font.SysFont('comic sans ms', 16)
+announcerFont = pygame.font.SysFont('georgia', 65)
+subtitleFont = pygame.font.SysFont('georgia', 28)
 
 # * colours!
 yellow = (255, 255, 66, 255)
+green = (0, 255, 0, 255)
+white = (255, 255, 255, 255)
+grey = (200, 200, 200, 255)
 
 displayWidth = targetWidth
 displayHeight = targetHeight
@@ -57,7 +64,7 @@ cubeclass = Cube()
 
 # ? set base camera application for matrix
 glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
-camera.setPosition(72, 2, 104)
+camera.setPosition(75, 2, 60)
 camera.setYaw(-math.pi/2)
 
 # ? RENDER MODE OPTIONS
@@ -157,10 +164,9 @@ print("wasd (movement)", flush=True)
 texturePath = "final-build/assets/textures/"
 
 Texture1=Texture(texturePath + "placeholder.png")
-Texture2=Texture(texturePath + "carpet.png")
-Texture3=Texture(texturePath + "ceiling.png")
+Texture2=Texture(texturePath + "voidwalls.png")
 
-defaultInfo = [displayWidth, displayHeight, font, yellow, screen]
+defaultInfo = [displayWidth, displayHeight, debugFont, green, screen]
 
 dialogue = False
 
@@ -246,25 +252,26 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
     
     # Text.dialogue(0, "Hey welcome to ben, my namea jeff and i love to ben in the ben house! yeah oooo yeah and if you enter my house without entering the password i will have to beat you to death with a rock yeah yeah oh yeah yeah!", defaultInfo)
 
-    if dialogue == True:
-        Text.dialogue(0, "OH NO OH AH AH OH NO THE FDA ARE GOING TO! TO RAID MY HOUSE!", defaultInfo)
+    # if dialogue == True:
+    #     Text.dialogue(0, "OH NO OH AH AH OH NO THE FDA ARE GOING TO! TO RAID MY HOUSE!", defaultInfo)
 
     # ? CURRENT COORDS
-    Text.drawText(0, 0, worldPosition, font, yellow)
+    Text.drawText(0, 0, worldPosition, debugFont, green)
     
     # ? NOCLIP TOGGLE INDICATOR
     if camera.collisionDetection:
-        Text.drawText(0, 20, "NOCLIP: OFF", font, yellow)
+        Text.drawText(0, 20, "NOCLIP: OFF", debugFont, green)
     else:
-        Text.drawText(0, 20, "NOCLIP: ON", font, yellow)
+        Text.drawText(0, 20, "NOCLIP: ON", debugFont, green)
         
-    Text.drawText(0, 40, f"FPS: {currentFPS}", font, yellow)
+    Text.drawText(0, 40, f"FPS: {currentFPS}", debugFont, green)
     
-    Text.drawText(0, 60, f"SPEED: {currentSpeed}", font, yellow)
+    Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
     
-    Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", font, yellow)
+    Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
     
-    Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", font, yellow)
+    Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
+    
     
     # Text.drawText(0, 120, margin, font, yellow)
         
@@ -273,7 +280,11 @@ def drawWalls(walls):
     for i, wall in enumerate(walls):
         
         glEnable(GL_TEXTURE_2D)
-        glBindTexture(GL_TEXTURE_2D,Texture1.texID)
+        for idx, v in enumerate(map0):
+            if map0[idx][0][4] == 1:
+                glBindTexture(GL_TEXTURE_2D,Texture2.texID)
+            else:
+                glBindTexture(GL_TEXTURE_2D, Texture1.texID)
         
         glBegin(GL_QUADS)
         glColor3f(255, 0, 255)
@@ -295,7 +306,7 @@ def drawWalls(walls):
         
 def drawEnemies(enemies):
     for i, enemy in enumerate(enemies):
-        cubeclass.cubeDraw(enemies[i][0], 2, enemies[i][1], enemies[i][2])
+        cubeclass.cubeDraw(enemies[i][0], 1.4, enemies[i][1], enemies[i][2])
         
 # ? catch all update functions into one
 def update():
@@ -340,6 +351,22 @@ def draw():
     glLoadIdentity()
 
     drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls, aliveCubes)
+    
+    # ? intro sequence: 
+    
+    if acclimateAnnouncerCheck:
+        Text.drawText(displayWidth/2-182, displayHeight/2+100, "ACCLIMATE", announcerFont, white)
+    if acclimateSubtitleCheck:
+        Text.drawText(displayWidth/2-87, displayHeight/2+60, "WASD to Move", subtitleFont, grey)
+    
+    if assimilateAnnouncerCheck:
+        Text.drawText(displayWidth/2-182, displayHeight/2+100, "ASSIMILATE", announcerFont, white)
+    if assimilateSubtitleCheck:
+        Text.drawText(displayWidth/2-82, displayHeight/2+60, "Space to Dash", subtitleFont, grey)
+        
+    if introSequenceComplete:
+        Text.drawText(displayWidth/2-120, displayHeight/2+100, "REPEAT", announcerFont, white)
+    
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
     glPopMatrix()
@@ -348,8 +375,21 @@ def draw():
     # update display
     pygame.display.flip() # buffer swap
 
+# ? game checks
+introSequence = True
+acclimateAnnouncerCheck = False
+acclimateSubtitleCheck = False
+assimilateAnnouncerCheck = False
+assimilateSubtitleCheck = False
+introSequenceComplete = False
+
+introLevel = False
+
+# ? -----------------------
+
 timer = 0
 counter = 0
+introCounter = 0
 marginCount = 0
 completionTime = 0
 levelTime = 30
@@ -416,10 +456,41 @@ while True:
             camera.moveSpeed = .65
             var = 0
             isDashing = False 
-            
-    
-                
+
     # ? time it took to complete level and time remaining in the level
+    introCounter += 1
+    if introSequence:
+
+        if introCounter == toFps(2):
+            acclimateAnnouncerCheck = True
+
+        if introCounter == toFps(3):
+            acclimateSubtitleCheck = True
+        
+        if introCounter == toFps(7):
+            acclimateAnnouncerCheck = False
+            acclimateSubtitleCheck = False
+            
+        if introCounter == toFps(9):
+            assimilateAnnouncerCheck = True
+        
+        if introCounter == toFps(10):
+            assimilateSubtitleCheck = True
+            for i, v in enumerate(map0enemies):
+                map0enemies[i][2] = 'r'
+
+        if len(aliveCubes) == 0:
+            assimilateAnnouncerCheck = False
+            assimilateSubtitleCheck = False
+            acclimateAnnouncerCheck = False
+            acclimateSubtitleCheck = False
+            introSequenceComplete = True
+            introLevel = True
+            introSequence = False
+            
+    if introLevel:
+        pass
+
     counter += 1
     if counter == 60:
         completionTime += 1
@@ -429,6 +500,7 @@ while True:
         
     # ? drawing of everything in the game
     draw()
+    
     
     drawCounter += 1
 

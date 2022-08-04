@@ -72,6 +72,20 @@ class Cube():
             (0,0,1), #r
             (0,0,1), #r
         )
+
+        self.w = (
+            (1,1,1), #r
+            (0,0,0), #r
+            (0,0,0), #r
+            (1,1,1), #r
+            (1,1,1), #r
+            (1,1,1), #r
+            (1,1,1), #r
+            (1,1,1), #r
+            (0,0,0), #r
+            (0,0,0), #r
+            (0,0,0), #r
+        )
         # surfaces are groups of vertices
         # indexes to the vertices list
         self.surfaces = (
@@ -100,6 +114,9 @@ class Cube():
 
                 elif colour == 'b':
                     glColor3fv(self.b[i])
+                    
+                elif colour == 'w':
+                    glColor3fv(self.w[i])
                     
                 else:
                     print("incorrect colour")
