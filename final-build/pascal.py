@@ -1,4 +1,3 @@
-from re import A
 import pygame, pascalengine, math, os
 from pascalengine.eventlistener import EventListener
 from pascalengine.player import Camera
@@ -11,10 +10,10 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-mapReturnees = createBSP(map0)
-solidBsp = mapReturnees[0]
-allLineDefs = mapReturnees[1]
-aliveCubes = map0enemies.copy()
+mapReturnees = createBSP(map)
+mapSolidBsp = mapReturnees[0]
+mapAllLineDefs = mapReturnees[1]
+mapAliveCubes = mapEnemies.copy()
 
 # ! ------------------------------------------------------------------------------------------------------------------
 # ? GAME SETUP
@@ -34,10 +33,12 @@ targetHeight = 720
 debugFont = pygame.font.SysFont('comic sans ms', 16)
 announcerFont = pygame.font.SysFont('georgia', 65)
 subtitleFont = pygame.font.SysFont('georgia', 28)
+counterFont = pygame.font.SysFont('jeff', 65)
 
 # * colours!
 yellow = (255, 255, 66, 255)
 green = (0, 255, 0, 255)
+pink = (255, 105, 180)
 white = (255, 255, 255, 255)
 grey = (200, 200, 200, 255)
 
@@ -59,12 +60,13 @@ glEnable(GL_BLEND) # allows for alpha transparency on color
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 listener = EventListener()
-camera = Camera(solidBsp)
+camera = Camera(mapSolidBsp)
 cubeclass = Cube()
 
 # ? set base camera application for matrix
 glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
 camera.setPosition(75, 2, 60)
+
 camera.setYaw(-math.pi/2)
 
 # ? RENDER MODE OPTIONS
@@ -77,30 +79,30 @@ fullscreen = False
 
 # ? KEY OPERATIONS
 
-# * change mode 1 up
-def mode_up():
-    global mode
-    mode = (mode + 1) % max_modes
+# # * change mode 1 up
+# def mode_up():
+#     global mode
+#     mode = (mode + 1) % max_modes
     
-# ? await mode up key
-listener.onKeyUp(pygame.K_UP, mode_up)
+# # ? await mode up key
+# listener.onKeyUp(pygame.K_UP, mode_up)
 
-# * change mode 1 down
-def mode_down():
-    global mode
-    mode = (mode - 1) % max_modes
+# # * change mode 1 down
+# def mode_down():
+#     global mode
+#     mode = (mode - 1) % max_modes
     
-# ? await mode up key
-listener.onKeyUp(pygame.K_DOWN, mode_down)
+# # ? await mode up key
+# listener.onKeyUp(pygame.K_DOWN, mode_down)
 
 # * define what happens when the x key is clicked (turns on noclip)
-def on_x():
+def on_v():
     global camera
     camera.collisionDetection = not camera.collisionDetection
     camera.lockFlight = not camera.lockFlight
     
-# ? await x key
-listener.onKeyUp(pygame.K_x, on_x)
+# ? await v key
+listener.onKeyUp(pygame.K_v, on_v)
 
 # * define what happens when the f key is clicked (fullscreen or back to windowed)
 def on_f():
@@ -135,13 +137,30 @@ def on_space():
     else:
         isDashing = False
 
-listener.onKeyUp(pygame.K_SPACE, on_space)
+listener.onKeyDown(pygame.K_SPACE, on_space)
 
 def on_r():
-    global aliveCubes
-    aliveCubes = map0enemies
+    global mapAliveCubes
+    mapAliveCubes = mapEnemies.copy()
+    
+listener.onKeyDown(pygame.K_r, on_r)
+    
+def on_c():
+    global debug
+    if not debug:
+        debug = True
+    else:
+        debug = False
 
-listener.onKeyUp(pygame.K_r, on_r)
+listener.onKeyDown(pygame.K_c, on_c)
+
+def on_k():
+    global sammich
+    if introSequence:
+        sammich = True
+        
+listener.onKeyDown(pygame.K_k, on_k)
+
 
 # ? move controls
 listener.onKeyHold(pygame.K_a, camera.strafeLeft)
@@ -152,19 +171,13 @@ listener.onMouseMove(camera.applyMouseMove)
 
 # ! ------------------------------------------------------------------------------------------------------------------
 
-# ? controls and info
-print("x (noclip)")
-print("f (fullscreen)")
-print("up_arrow (map mode up)")
-print("down_arrow (map mode down)")
-print("wasd (movement)", flush=True)
-
 # ! TEXTURES! (NEED A BETTER PLACE FOR THIS)
 
 texturePath = "final-build/assets/textures/"
 
-Texture1=Texture(texturePath + "placeholder.png")
+Texture1=Texture(texturePath + "bones.png")
 Texture2=Texture(texturePath + "voidwalls.png")
+Texture3=Texture(texturePath + "sandwich.png")
 
 defaultInfo = [displayWidth, displayHeight, debugFont, green, screen]
 
@@ -198,55 +211,60 @@ def drawPoint(pos, radius, r, g, b, a):
 def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, enemies):
     # wall lines
     # walls are position in with start and in in the x and z coordinates
-    if mode == 0:
+    # if mode == 0:
+            
+    # if mode == 1:
+    #     for lineDef in allLineDefs:
+    #         # draw wall
+    #         mapStart = [lineDef.start[0] + offsetX, lineDef.start[1] + offsetY]
+    #         mapEnd = [lineDef.end[0] + offsetX, lineDef.end[1] + offsetY]
+    #         drawLine(mapStart, mapEnd, 1, 0.0, 0.0, 1.0, 1.0)
+    #         # draw facing dir
+    #         ln = 7
+    #         mx = lineDef.mid[0]
+    #         my = lineDef.mid[1]
+    #         nx = lineDef.normals[lineDef.facing][0] * ln
+    #         ny = lineDef.normals[lineDef.facing][1] * ln
+    #         if lineDef.facing == 1:
+    #             drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 0.0, 1.0, 1.0, 1.0)
+    #         else:
+    #             drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 1.0, 0.0, 1.0, 1.0)
+    # if mode == 2:
+    #     solidBsp.drawSegs(drawLine, offsetX, offsetY)
+    # if mode == 3:
+    #     solidBsp.drawFaces(drawLine, camera.worldPos[0], camera.worldPos[2], offsetX, offsetY)
+            
+    if debug:
         for wall in walls:
             start = [wall.start[0] + offsetX, wall.start[1] + offsetY];
             end = [wall.end[0] + offsetX, wall.end[1] + offsetY];
             drawLine(start, end, 1.5, 0, 1, 0.2, 1)
-    if mode == 1:
-        for lineDef in allLineDefs:
-            # draw wall
-            mapStart = [lineDef.start[0] + offsetX, lineDef.start[1] + offsetY]
-            mapEnd = [lineDef.end[0] + offsetX, lineDef.end[1] + offsetY]
-            drawLine(mapStart, mapEnd, 1, 0.0, 0.0, 1.0, 1.0)
-            # draw facing dir
-            ln = 7
-            mx = lineDef.mid[0]
-            my = lineDef.mid[1]
-            nx = lineDef.normals[lineDef.facing][0] * ln
-            ny = lineDef.normals[lineDef.facing][1] * ln
-            if lineDef.facing == 1:
-                drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 0.0, 1.0, 1.0, 1.0)
-            else:
-                drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 1.0, 0.0, 1.0, 1.0)
-    if mode == 2:
-        solidBsp.drawSegs(drawLine, offsetX, offsetY)
-    if mode == 3:
-        solidBsp.drawFaces(drawLine, camera.worldPos[0], camera.worldPos[2], offsetX, offsetY)
+
+        for i, v in enumerate(enemies):
             
-    for i, v in enumerate(enemies):
-        
-        drawPoint((enemies[i][0] + offsetX, enemies[i][1] + offsetY), 2, 1, 0, 0, 1)
+            drawPoint((enemies[i][0] + offsetX, enemies[i][1] + offsetY), 2, 1, 0, 0, 1)
 
-    # camera
-    angleLength = 10
-    camOrigin = [camera.worldPos[0] + offsetX, camera.worldPos[2] + offsetY] # mapX is worldX, mapY is worldZ
-    camNeedle = [camOrigin[0] + math.cos(camera.yaw - math.pi/2) * angleLength, camOrigin[1] + math.sin(camera.yaw - math.pi/2) * angleLength]
-    # yaw at 0 is straight down the positive z, which is down mapY
-    # ? draw player on mini map
-    drawLine(camOrigin, camNeedle, 1, 1, .5, 1, 1)
-    drawPoint(camOrigin, 2, 1, 1, 1, 1)
+        # camera
+        angleLength = 10
+        camOrigin = [camera.worldPos[0] + offsetX, camera.worldPos[2] + offsetY] # mapX is worldX, mapY is worldZ
+        camNeedle = [camOrigin[0] + math.cos(camera.yaw - math.pi/2) * angleLength, camOrigin[1] + math.sin(camera.yaw - math.pi/2) * angleLength]
+        # yaw at 0 is straight down the positive z, which is down mapY
+        # ? draw player on mini map
+        drawLine(camOrigin, camNeedle, 1, 1, .5, 1, 1)
+        drawPoint(camOrigin, 2, 1, 1, 1, 1)
     
-    # ? render crosshair
-    drawLine([displayWidth/2, displayHeight/2-8], [displayWidth/2, displayHeight/2-2], 3, 0, 0, 0, 1)
-    drawLine([displayWidth/2, displayHeight/2+2], [displayWidth/2, displayHeight/2+8], 3, 0, 0, 0, 1)
-    drawLine([displayWidth/2-8, displayHeight/2], [displayWidth/2-2, displayHeight/2], 3, 0, 0, 0, 1)
-    drawLine([displayWidth/2+2, displayHeight/2], [displayWidth/2+8, displayHeight/2], 3, 0, 0, 0, 1)
+    if crosshairCheck:
+    
+        # ? render crosshair
+        drawLine([displayWidth/2, displayHeight/2-8], [displayWidth/2, displayHeight/2-2], 3, 0, 0, 0, 1)
+        drawLine([displayWidth/2, displayHeight/2+2], [displayWidth/2, displayHeight/2+8], 3, 0, 0, 0, 1)
+        drawLine([displayWidth/2-8, displayHeight/2], [displayWidth/2-2, displayHeight/2], 3, 0, 0, 0, 1)
+        drawLine([displayWidth/2+2, displayHeight/2], [displayWidth/2+8, displayHeight/2], 3, 0, 0, 0, 1)
 
-    drawLine([displayWidth/2, displayHeight/2-8], [displayWidth/2, displayHeight/2-2], 2, .3, 1, .3, 1)
-    drawLine([displayWidth/2, displayHeight/2+2], [displayWidth/2, displayHeight/2+8], 2, .3, 1, .3, 1)
-    drawLine([displayWidth/2-8, displayHeight/2], [displayWidth/2-2, displayHeight/2], 2, .3, 1, .3, 1)
-    drawLine([displayWidth/2+2, displayHeight/2], [displayWidth/2+8, displayHeight/2], 2, .3, 1, .3, 1)
+        drawLine([displayWidth/2, displayHeight/2-8], [displayWidth/2, displayHeight/2-2], 2, .3, 1, .3, 1)
+        drawLine([displayWidth/2, displayHeight/2+2], [displayWidth/2, displayHeight/2+8], 2, .3, 1, .3, 1)
+        drawLine([displayWidth/2-8, displayHeight/2], [displayWidth/2-2, displayHeight/2], 2, .3, 1, .3, 1)
+        drawLine([displayWidth/2+2, displayHeight/2], [displayWidth/2+8, displayHeight/2], 2, .3, 1, .3, 1)
     
     # Text.drawImage('final-build/assets/textures/tim.png', defaultInfo)
     
@@ -254,40 +272,36 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
 
     # if dialogue == True:
     #     Text.dialogue(0, "OH NO OH AH AH OH NO THE FDA ARE GOING TO! TO RAID MY HOUSE!", defaultInfo)
-
-    # ? CURRENT COORDS
-    Text.drawText(0, 0, worldPosition, debugFont, green)
     
-    # ? NOCLIP TOGGLE INDICATOR
-    if camera.collisionDetection:
-        Text.drawText(0, 20, "NOCLIP: OFF", debugFont, green)
-    else:
-        Text.drawText(0, 20, "NOCLIP: ON", debugFont, green)
+    if debug:
+        # ? CURRENT COORDS
+        Text.drawText(0, 0, worldPosition, debugFont, green)
         
-    Text.drawText(0, 40, f"FPS: {currentFPS}", debugFont, green)
-    
-    Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
-    
-    Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
-    
-    Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
-    
-    
-    # Text.drawText(0, 120, margin, font, yellow)
+        # ? NOCLIP TOGGLE INDICATOR
+        if camera.collisionDetection:
+            Text.drawText(0, 20, "NOCLIP: OFF", debugFont, green)
+        else:
+            Text.drawText(0, 20, "NOCLIP: ON", debugFont, green)
+            
+        Text.drawText(0, 40, f"FPS: {currentFPS}", debugFont, green)
+        
+        Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
+        
+        Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
+        
+        Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
         
 # ? define which walls are drawn
 def drawWalls(walls):
     for i, wall in enumerate(walls):
         
         glEnable(GL_TEXTURE_2D)
-        for idx, v in enumerate(map0):
-            if map0[idx][0][4] == 1:
-                glBindTexture(GL_TEXTURE_2D,Texture2.texID)
-            else:
-                glBindTexture(GL_TEXTURE_2D, Texture1.texID)
-        
+    
         glBegin(GL_QUADS)
-        glColor3f(255, 0, 255)
+
+        c = wall.drawColor
+        # glColor3f(255, 255, 255)
+        glColor3f(c[0], c[1]/255, c[2])
         
         glTexCoord2f(1, 0)
         glVertex3f(wall.start[0],   0,              wall.start[1]) # low lef
@@ -318,7 +332,7 @@ def draw():
     
     # sort walls around camera x and z
     walls = []
-    solidBsp.getWallsSorted(camera.worldPos[0], camera.worldPos[2], walls)
+    mapSolidBsp.getWallsSorted(camera.worldPos[0], camera.worldPos[2], walls)
 
     # RENDER 3D
     glPushMatrix() # copies matrix below stack (in this case, our base camera matrix transformation)
@@ -333,7 +347,7 @@ def draw():
     glMatrixMode(GL_MODELVIEW) # set us into the 3d matrix
 
     drawWalls(walls)
-    drawEnemies(aliveCubes)
+    drawEnemies(mapAliveCubes)
 
     glPopMatrix()
     # END 3D
@@ -350,7 +364,7 @@ def draw():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    drawHud(20, 20, 400, 300, mode, camera, allLineDefs, walls, aliveCubes)
+    drawHud(20, 20, 400, 300, mode, camera, mapAllLineDefs, walls, mapAliveCubes)
     
     # ? intro sequence: 
     
@@ -358,14 +372,23 @@ def draw():
         Text.drawText(displayWidth/2-182, displayHeight/2+100, "ACCLIMATE", announcerFont, white)
     if acclimateSubtitleCheck:
         Text.drawText(displayWidth/2-87, displayHeight/2+60, "WASD to Move", subtitleFont, grey)
-    
+        Text.drawText(displayWidth/2-82, displayHeight/2+177, "Mouse to Look", subtitleFont, grey)
+        
     if assimilateAnnouncerCheck:
         Text.drawText(displayWidth/2-182, displayHeight/2+100, "ASSIMILATE", announcerFont, white)
     if assimilateSubtitleCheck:
-        Text.drawText(displayWidth/2-82, displayHeight/2+60, "Space to Dash", subtitleFont, grey)
+        Text.drawText(displayWidth/2-158, displayHeight/2+60, "Space to Dash while Moving", subtitleFont, grey)
         
-    if introSequenceComplete:
-        Text.drawText(displayWidth/2-120, displayHeight/2+100, "REPEAT", announcerFont, white)
+    if repeatAnnouncerCheck:
+        if sammich:
+            Text.drawText(displayWidth/2-55, displayHeight/2+100, "EAT", announcerFont, white)
+        else:
+            Text.drawText(displayWidth/2-120, displayHeight/2+100, "REPEAT", announcerFont, white)
+    if repeatSubtitleCheck:
+        Text.drawText(displayWidth/2-95, displayHeight/2+60, "Destroy them all", subtitleFont, grey)
+        
+    if introLevelTimer:
+        Text.drawText(displayWidth/2-17, displayHeight/2+295, str(introLevelTime), counterFont, pink)
     
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
@@ -376,20 +399,36 @@ def draw():
     pygame.display.flip() # buffer swap
 
 # ? game checks
+debug = False
+
 introSequence = True
+sammich = False
 acclimateAnnouncerCheck = False
 acclimateSubtitleCheck = False
 assimilateAnnouncerCheck = False
 assimilateSubtitleCheck = False
 introSequenceComplete = False
+repeatAnnouncerCheck = False
+crosshairCheck = False
 
 introLevel = False
+introLevelTimer = False
+repeatSubtitleCheck = False
+
+# ? -----------------------
+
+glBindTexture(GL_TEXTURE_2D, Texture2.texID)
 
 # ? -----------------------
 
 timer = 0
 counter = 0
+
 introCounter = 0
+introLevelCounter = 0
+introLevelCounter2 = 0
+introLevelTime = 7
+
 marginCount = 0
 completionTime = 0
 levelTime = 30
@@ -398,8 +437,11 @@ FPS = 60
 dt = int(1 / FPS * 1000) # 60 fps in ms
 updateCounter = 0
 drawCounter = 0
-var = 0
-dashLength = 5
+
+dashSpeedCount = 0
+dashLengthCount = 0
+dashSpeedLength = 4.5
+dashLength = 8
 # ? game loop
 while True:
 
@@ -424,7 +466,7 @@ while True:
     clock.tick(FPS)
     currentFPS = str(round(clock.get_fps()))
     
-    # # ? speed 
+    # ? speed 
     currentSpeed = str(camera.moveSpeed)
     
     # ? dash:
@@ -433,9 +475,9 @@ while True:
     total = len(referencePos)
     
     if isDashing:
-        for idx, v, in enumerate(aliveCubes):
+        for idx, v, in enumerate(mapAliveCubes):
             for i in range(total):
-                if abs(referencePos[i] - aliveCubes[idx][i]) > 2:
+                if abs(referencePos[i] - mapAliveCubes[idx][i]) > 2:
                     marginCount += 1
                     
             if total > 0:
@@ -445,16 +487,19 @@ while True:
                 margin = 1.0
                 marginCount = 0
                 
-            if round(referencePos[0]) == aliveCubes[idx][0] and round(referencePos[1]) == aliveCubes[idx][1] or margin < .25:
-                aliveCubes.pop(idx)
+            if round(referencePos[0]) == mapAliveCubes[idx][0] and round(referencePos[1]) == mapAliveCubes[idx][1] or margin < .30:
+                mapAliveCubes.pop(idx)
                 
-        var += 1
-        while var < dashLength:
+        dashSpeedCount += 1
+        dashLengthCount += 1
+        while dashSpeedCount < dashSpeedLength:
             camera.moveSpeed = 2
             break
-        if var > dashLength:
-            camera.moveSpeed = .65
-            var = 0
+        if dashSpeedCount > dashSpeedLength:
+            camera.moveSpeed = .7
+        if dashLengthCount > dashLength:
+            dashSpeedCount = 0
+            dashLengthCount = 0
             isDashing = False 
 
     # ? time it took to complete level and time remaining in the level
@@ -476,21 +521,58 @@ while True:
         
         if introCounter == toFps(10):
             assimilateSubtitleCheck = True
-            for i, v in enumerate(map0enemies):
-                map0enemies[i][2] = 'r'
+            for i, v in enumerate(mapAliveCubes):
+                mapAliveCubes[0][2] = 'r'
+            crosshairCheck = True
 
-        if len(aliveCubes) == 0:
-            assimilateAnnouncerCheck = False
-            assimilateSubtitleCheck = False
-            acclimateAnnouncerCheck = False
-            acclimateSubtitleCheck = False
-            introSequenceComplete = True
-            introLevel = True
-            introSequence = False
+        for i, v in enumerate(mapAliveCubes):
+            if mapAliveCubes[0][3] != 0:
+                assimilateAnnouncerCheck = False
+                assimilateSubtitleCheck = False
+                acclimateAnnouncerCheck = False
+                acclimateSubtitleCheck = False
+                introSequenceComplete = True
+                repeatAnnouncerCheck = True
+                crosshairCheck = True
+                introLevel = True
+                intLevelPosChange = True
+                introSequence = False
             
     if introLevel:
-        pass
-
+        
+        if sammich:
+            glBindTexture(GL_TEXTURE_2D, Texture3.texID)
+        else:
+            glBindTexture(GL_TEXTURE_2D, Texture1.texID)
+        
+        introLevelCounter += 1
+        
+        if introLevelTimer:
+            introLevelCounter2 += 1
+            if introLevelCounter2 == toFps(1):
+                if introLevelTime != 0:
+                    introLevelTime -= 1
+                introLevelCounter2 = 0
+        
+        if intLevelPosChange:
+            map.pop(0)
+            camera.setPosition(65.6, 0, 137)
+            camera.setYaw(math.pi/2)
+            intLevelPosChange = False
+        
+        if introLevelCounter == toFps(1):
+            
+            repeatSubtitleCheck = True
+            
+        if introLevelCounter == toFps(3):
+            
+            repeatAnnouncerCheck = False
+            repeatSubtitleCheck = False
+            
+        # for i, v in enumerate(mapAliveCubes):
+        #     if mapAliveCubes[1][3] != 1:
+        introLevelTimer = True
+                
     counter += 1
     if counter == 60:
         completionTime += 1
@@ -500,7 +582,6 @@ while True:
         
     # ? drawing of everything in the game
     draw()
-    
     
     drawCounter += 1
 

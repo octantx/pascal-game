@@ -36,6 +36,7 @@ def createBSP(polygons):
 # # Lines, each vertex connects to the next one in CW fashion
 # # third element is direction its facing, when CW facing 1 = left
 
+
 mapMoogus = [
     [
         # [30, 30, 1, 9], #1
@@ -57,9 +58,7 @@ mapMoogus = [
     ]
 ]
 
-map0 = [
-    
-    # ? 1) HOUSE LAYOUT
+map = [
     
         # ? X, Y, 0 = right 1 = left, HEIGHT
     [
@@ -69,15 +68,38 @@ map0 = [
         [90, 90, 0, 5, 1], # 4
         [30, 90, 0, 5, 1], # 3
     ],
-]
-map0enemies = [
-    [60, 60, 'w'],
-    # [75, 55, 'r'],
-    # [75, 35, 'r']
+    
+    [
+        # ? tutorial level
+        [110, 30, 0, 10, 1],
+        [140, 30, 0, 10, 1],
+        [140, 90, 0, 10, 1],
+        [125, 105, 0, 10, 1],
+        [140, 115, 0, 10, 1],
+        [140, 200, 0, 10, 1],
+        [140, 200, 0, 10, 1],
+        [110, 200, 0, 10, 1],
+        [110, 157, 0, 10, 1],
+        [125, 157, 0, 10, 1],
+        [125, 152, 0, 10, 1],
+        [110, 152, 0, 10, 1],
+        [110, 90, 0, 10, 1],
+        [125, 85, 0, 10, 1],
+        [110, 75, 0, 10, 1],
+    ],
+    
+    
 ]
 
-map1 =  [
-    [
-        []
-    ]
+mapEnemies = [
+    # ? intro section cube
+    [60, 60, 'w', 0],
+    
+    # ? tutorial level cubes
+    [127, 177, 'g', 1],
+    [133, 155, 'r', 2],
+    [118, 115, 'r', 3],
+    [132, 80, 'r', 4],
+    [125, 43, 'b', 5],
+    
 ]

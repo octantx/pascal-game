@@ -19,7 +19,7 @@ class Camera(object):
         self.gravity = 20.0
         self.friction = 6
         # move
-        self.moveSpeed = .65
+        self.moveSpeed = .7
         self.moveDir = [0, 0] # x,y or strafe/fwd
         self.worldPos = [0, 0, 0] # x, y, z
         self.runAcceleration = 14.0
@@ -33,7 +33,7 @@ class Camera(object):
         self.holdJumpToBhop = True
         self.playerFriction = 0.0
         # look
-        self.lookSpeed = .3
+        self.lookSpeed = .2
         self.pitch = 0
         self.pitchMax = math.pi/2 - .05 # maximum rotation negative and positive for pitch
         self.pitchDelta = 0
