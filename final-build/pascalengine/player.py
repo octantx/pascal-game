@@ -61,10 +61,16 @@ class Camera(object):
     def applyMouseMove(self, deltaX, deltaY, screenX, screenY):
         self.yawDelta += deltaX
         self.pitchDelta += deltaY
-
+    
     def setPosition(self, x, y, z):
         # camera translates in the inverse of the world?
         glTranslate(-x, -y, -z)
+        
+    def toPosition(self, x, z):
+        rX = x - self.worldPos[0]
+        rZ = z - self.worldPos[2]
+        glTranslate(-rX, 0, -rZ)
+        
     
     def setYaw(self, yawRadians):
         self.yawDelta = rad2deg(yawRadians) / self.lookSpeed

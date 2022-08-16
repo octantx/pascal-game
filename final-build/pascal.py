@@ -32,13 +32,14 @@ targetHeight = 720
 # ? FONT DECLARATION
 debugFont = pygame.font.SysFont('comic sans ms', 16)
 announcerFont = pygame.font.SysFont('georgia', 65)
+introFont = pygame.font.SysFont('georgia', 200)
 subtitleFont = pygame.font.SysFont('georgia', 28)
 counterFont = pygame.font.SysFont('jeff', 65)
 
 # * colours!
 yellow = (255, 255, 66, 255)
 green = (0, 255, 0, 255)
-pink = (255, 105, 180)
+purpleish = (218, 112, 214)
 white = (255, 255, 255, 255)
 grey = (200, 200, 200, 255)
 
@@ -140,8 +141,9 @@ def on_space():
 listener.onKeyDown(pygame.K_SPACE, on_space)
 
 def on_r():
-    global mapAliveCubes
-    mapAliveCubes = mapEnemies.copy()
+    global restart
+    if ableToRestart:
+        restart = True
     
 listener.onKeyDown(pygame.K_r, on_r)
     
@@ -285,11 +287,11 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
             
         Text.drawText(0, 40, f"FPS: {currentFPS}", debugFont, green)
         
-        Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
+        # Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
         
-        Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
+        # Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
         
-        Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
+        # Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
         
 # ? define which walls are drawn
 def drawWalls(walls):
@@ -366,7 +368,13 @@ def draw():
 
     drawHud(20, 20, 400, 300, mode, camera, mapAllLineDefs, walls, mapAliveCubes)
     
-    # ? intro sequence: 
+    # ? titles:
+
+    if againCheck:
+        Text.drawText(displayWidth/2-98, displayHeight/2+100, "AGAIN", announcerFont, white)
+    if not restartToolTipDone:
+        if restartToolTipCheck:
+            Text.drawText(displayWidth/2-65, displayHeight/2+60, "R to Restart", subtitleFont, grey)
     
     if acclimateAnnouncerCheck:
         Text.drawText(displayWidth/2-182, displayHeight/2+100, "ACCLIMATE", announcerFont, white)
@@ -384,11 +392,15 @@ def draw():
             Text.drawText(displayWidth/2-55, displayHeight/2+100, "EAT", announcerFont, white)
         else:
             Text.drawText(displayWidth/2-120, displayHeight/2+100, "REPEAT", announcerFont, white)
+            
     if repeatSubtitleCheck:
         Text.drawText(displayWidth/2-95, displayHeight/2+60, "Destroy them all", subtitleFont, grey)
         
     if introLevelTimer:
-        Text.drawText(displayWidth/2-17, displayHeight/2+295, str(introLevelTime), counterFont, pink)
+        Text.drawText(displayWidth/2-17, displayHeight/2+295, str(introLevelTime), counterFont, purpleish)
+        
+    if introLevelComplete:
+        Text.drawText(displayWidth/2-373, displayHeight/2-100, "PASCAL", introFont, purpleish)
     
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
@@ -400,6 +412,12 @@ def draw():
 
 # ? game checks
 debug = False
+
+restart = False
+againCheck = False
+restartToolTipCheck = False
+restartToolTipDone = False
+ableToRestart = False
 
 introSequence = True
 sammich = False
@@ -414,6 +432,7 @@ crosshairCheck = False
 introLevel = False
 introLevelTimer = False
 repeatSubtitleCheck = False
+introLevelComplete = False
 
 # ? -----------------------
 
@@ -423,6 +442,7 @@ glBindTexture(GL_TEXTURE_2D, Texture2.texID)
 
 timer = 0
 counter = 0
+againCounter = 0
 
 introCounter = 0
 introLevelCounter = 0
@@ -473,23 +493,29 @@ while True:
     referencePos = camera.worldPos.copy()
     referencePos.pop(1)
     total = len(referencePos)
-    
-    if isDashing:
-        for idx, v, in enumerate(mapAliveCubes):
-            for i in range(total):
-                if abs(referencePos[i] - mapAliveCubes[idx][i]) > 2:
-                    marginCount += 1
-                    
-            if total > 0:
-                margin = marginCount / total
-                marginCount = 0
-            else:
-                margin = 1.0
-                marginCount = 0
+
+    for idx, v, in enumerate(mapAliveCubes):
+        for i in range(total):
+            if abs(referencePos[i] - mapAliveCubes[idx][i]) > 2:
+                marginCount += 1
                 
-            if round(referencePos[0]) == mapAliveCubes[idx][0] and round(referencePos[1]) == mapAliveCubes[idx][1] or margin < .30:
+        if total > 0:
+            margin = marginCount / total
+            marginCount = 0
+        else:
+            margin = 1.0
+            marginCount = 0
+            
+        if round(referencePos[0]) == mapAliveCubes[idx][0] and round(referencePos[1]) == mapAliveCubes[idx][1] or margin < .30:
+            if isDashing:
                 mapAliveCubes.pop(idx)
-                
+            elif introSequence:
+                pass
+            else:
+                restart = True
+
+    if isDashing:
+        
         dashSpeedCount += 1
         dashLengthCount += 1
         while dashSpeedCount < dashSpeedLength:
@@ -521,24 +547,25 @@ while True:
         
         if introCounter == toFps(10):
             assimilateSubtitleCheck = True
-            for i, v in enumerate(mapAliveCubes):
-                mapAliveCubes[0][2] = 'r'
+            mapAliveCubes[0][2] = 'r'
             crosshairCheck = True
 
-        for i, v in enumerate(mapAliveCubes):
-            if mapAliveCubes[0][3] != 0:
-                assimilateAnnouncerCheck = False
-                assimilateSubtitleCheck = False
-                acclimateAnnouncerCheck = False
-                acclimateSubtitleCheck = False
-                introSequenceComplete = True
-                repeatAnnouncerCheck = True
-                crosshairCheck = True
-                introLevel = True
-                intLevelPosChange = True
-                introSequence = False
+        if mapAliveCubes[0][3] != 0:
+            mapEnemies.pop(0)
+            assimilateAnnouncerCheck = False
+            assimilateSubtitleCheck = False
+            acclimateAnnouncerCheck = False
+            acclimateSubtitleCheck = False
+            introSequenceComplete = True
+            repeatAnnouncerCheck = True
+            crosshairCheck = True
+            introLevel = True
+            intLevelPosChange = True
+            introSequence = False
             
     if introLevel:
+        
+        ableToRestart = True
         
         if sammich:
             glBindTexture(GL_TEXTURE_2D, Texture3.texID)
@@ -552,13 +579,17 @@ while True:
             if introLevelCounter2 == toFps(1):
                 if introLevelTime != 0:
                     introLevelTime -= 1
+                else:
+                    restart = True
                 introLevelCounter2 = 0
         
         if intLevelPosChange:
             map.pop(0)
-            camera.setPosition(65.6, 0, 137)
+            camera.toPosition(125.6, 197)
             camera.setYaw(math.pi/2)
             intLevelPosChange = False
+        
+        # ? restart logic, intro level
         
         if introLevelCounter == toFps(1):
             
@@ -568,17 +599,64 @@ while True:
             
             repeatAnnouncerCheck = False
             repeatSubtitleCheck = False
+
+        if not introLevelComplete:
+            if not introLevelTimer:
+                introLevelTimer = True
+        
+        endCubeCheck = []
+        for i, v in enumerate(mapAliveCubes):
+            if mapAliveCubes[i][3] != 5:
+                endCubeCheck.append(False)
+            else:
+                endCubeCheck.append(True)
+        
+        if True not in endCubeCheck:
+            introLevelComplete = True
+            endCubeCheck.clear()
             
-        # for i, v in enumerate(mapAliveCubes):
-        #     if mapAliveCubes[1][3] != 1:
-        introLevelTimer = True
-                
-    counter += 1
-    if counter == 60:
-        completionTime += 1
-        if levelTime != 0:
-            levelTime -= 1
-        counter = 0
+        if introLevelComplete:
+            
+            camera.toPosition(85, 30)
+            glBindTexture(GL_TEXTURE_2D, Texture2.texID)
+            crosshairCheck = False
+            introLevelTimer = False
+            repeatAnnouncerCheck = False
+            repeatSubtitleCheck = False
+            againCheck = False
+            restartToolTipCheck = False
+        
+        if restart:
+            camera.toPosition(125.6, 197)
+            mapAliveCubes = mapEnemies.copy()
+            introLevelTime = 7
+
+            againCheck = True
+            if introLevel:
+                repeatAnnouncerCheck = False
+                repeatSubtitleCheck = False
+
+            restart = False
+            
+        if againCheck:
+            
+            repeatSubtitleCheck = False
+            
+            againCounter += 1
+            if againCounter == toFps(1):
+                restartToolTipCheck = True
+            if againCounter == toFps(3):
+                restartToolTipDone = True
+                restartToolTipCheck = False
+                againCheck = False
+                againCounter = 0
+            
+    # counter += 1
+    # if counter == 60:
+    #     completionTime += 1
+    #     if levelTime != 0:
+    #         levelTime -= 1
+    #     counter = 0
         
     # ? drawing of everything in the game
     draw()

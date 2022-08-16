@@ -94,12 +94,11 @@ map = [
 mapEnemies = [
     # ? intro section cube
     [60, 60, 'w', 0],
-    
+
     # ? tutorial level cubes
     [127, 177, 'g', 1],
     [133, 155, 'r', 2],
     [118, 115, 'r', 3],
     [132, 80, 'r', 4],
     [125, 43, 'b', 5],
-    
 ]
