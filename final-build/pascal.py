@@ -1,4 +1,4 @@
-import pygame, pascalengine, math, os
+import pygame, pascalengine, math, os, random
 from pascalengine.eventlistener import EventListener
 from pascalengine.player import Camera
 from pascalengine.spriterenderer import Text
@@ -156,6 +156,12 @@ def on_c():
 
 listener.onKeyDown(pygame.K_c, on_c)
 
+def on_x():
+    global fpsTog
+    fpsTog = not fpsTog
+
+listener.onKeyDown(pygame.K_x, on_x)
+
 def on_k():
     global sammich
     if introSequence:
@@ -173,18 +179,27 @@ listener.onMouseMove(camera.applyMouseMove)
 
 # ! ------------------------------------------------------------------------------------------------------------------
 
-# ! TEXTURES! (NEED A BETTER PLACE FOR THIS)
+# ! textures and sounds
 
 texturePath = "final-build/assets/textures/"
+soundPath = "final-build/assets/sound/"
 
 Texture1=Texture(texturePath + "bones.png")
 Texture2=Texture(texturePath + "voidwalls.png")
 Texture3=Texture(texturePath + "sandwich.png")
 
+hit01Sound = pygame.mixer.Sound(soundPath + "hit01.wav")
+hit02Sound = pygame.mixer.Sound(soundPath + "hit02.wav")
+hit03Sound = pygame.mixer.Sound(soundPath + "hit03.wav")
+impactSound = pygame.mixer.Sound(soundPath + "impact.wav")
+
+ambienceSound = pygame.mixer.Sound(soundPath + "ambience.wav")
+mainSound = pygame.mixer.Sound(soundPath + "main.wav")
+
+def impact():
+    pygame.mixer.Sound.play(impactSound)
+
 defaultInfo = [displayWidth, displayHeight, debugFont, green, screen]
-
-dialogue = False
-
 
 # ! ------------------------------------------------------------------------------------------------------------------
 
@@ -242,9 +257,6 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
             end = [wall.end[0] + offsetX, wall.end[1] + offsetY];
             drawLine(start, end, 1.5, 0, 1, 0.2, 1)
 
-        for i, v in enumerate(enemies):
-            
-            drawPoint((enemies[i][0] + offsetX, enemies[i][1] + offsetY), 2, 1, 0, 0, 1)
 
         # camera
         angleLength = 10
@@ -286,12 +298,21 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
             Text.drawText(0, 20, "NOCLIP: ON", debugFont, green)
             
         Text.drawText(0, 40, f"FPS: {currentFPS}", debugFont, green)
+
+        # ! drawing enemies, taken out because it caused crazy fps drops
+        for i, v in enumerate(enemies):
+            
+            drawPoint((enemies[i][0] + offsetX, enemies[i][1] + offsetY), 2, 1, 0, 0, 1)
         
         # Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
         
         # Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
         
         # Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
+    else:
+        if fpsTog:
+            Text.drawText(0, 0, f"FPS: {currentFPS}", debugFont, green)
+        
         
 # ? define which walls are drawn
 def drawWalls(walls):
@@ -396,12 +417,15 @@ def draw():
     if repeatSubtitleCheck:
         Text.drawText(displayWidth/2-95, displayHeight/2+60, "Destroy them all", subtitleFont, grey)
         
-    if introLevelTimer:
-        Text.drawText(displayWidth/2-17, displayHeight/2+295, str(introLevelTime), counterFont, purpleish)
+    if levelTimer:
+        Text.drawText(displayWidth/2-17, displayHeight/2+295, str(levelTime), counterFont, purpleish)
         
-    if introLevelComplete:
+    if pascalTitleCheck:
         Text.drawText(displayWidth/2-373, displayHeight/2-100, "PASCAL", introFont, purpleish)
-    
+        
+    if decimateAnnouncerCheck:
+        Text.drawText(displayWidth/2-170, displayHeight/2+100, "DECIMATE", announcerFont, white)
+        
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
     glPopMatrix()
@@ -412,6 +436,9 @@ def draw():
 
 # ? game checks
 debug = False
+fpsTog = False
+musicPlayedCheck = False
+ambiencePlayedCheck = False
 
 restart = False
 againCheck = False
@@ -430,9 +457,17 @@ repeatAnnouncerCheck = False
 crosshairCheck = False
 
 introLevel = False
-introLevelTimer = False
+levelTimer = False
 repeatSubtitleCheck = False
 introLevelComplete = False
+pascalTitleCheck = False
+
+introLevelSequenceComplete = False
+
+secondLevel = False
+secondLevelTimer = False
+decimateAnnouncerCheck = False
+secondLevelComplete = False
 
 # ? -----------------------
 
@@ -443,15 +478,19 @@ glBindTexture(GL_TEXTURE_2D, Texture2.texID)
 timer = 0
 counter = 0
 againCounter = 0
+timeToTeleport = 0
+timeToTeleportCheck = False
+
+levelTime = 7
 
 introCounter = 0
 introLevelCounter = 0
 introLevelCounter2 = 0
-introLevelTime = 7
+
+secondLevelCounter = 0
+secondLevelCounter2 = 0
 
 marginCount = 0
-completionTime = 0
-levelTime = 30
 actualTime = pygame.time.get_ticks() # ms
 FPS = 60
 dt = int(1 / FPS * 1000) # 60 fps in ms
@@ -509,6 +548,16 @@ while True:
         if round(referencePos[0]) == mapAliveCubes[idx][0] and round(referencePos[1]) == mapAliveCubes[idx][1] or margin < .30:
             if isDashing:
                 mapAliveCubes.pop(idx)
+                
+                whichHit = random.randint(0,2)
+                
+                if whichHit == 0:
+                    pygame.mixer.Sound.play(hit01Sound)
+                if whichHit == 1:
+                    pygame.mixer.Sound.play(hit02Sound)
+                if whichHit == 2:
+                    pygame.mixer.Sound.play(hit03Sound)
+                    
             elif introSequence:
                 pass
             else:
@@ -524,16 +573,23 @@ while True:
         if dashSpeedCount > dashSpeedLength:
             camera.moveSpeed = .7
         if dashLengthCount > dashLength:
+            
+                
             dashSpeedCount = 0
             dashLengthCount = 0
             isDashing = False 
 
     # ? time it took to complete level and time remaining in the level
-    introCounter += 1
     if introSequence:
+        introCounter += 1
+        
+        if ambiencePlayedCheck == False:
+            pygame.mixer.Sound.play(ambienceSound)
+            ambiencePlayedCheck = True
 
         if introCounter == toFps(2):
             acclimateAnnouncerCheck = True
+            impact()
 
         if introCounter == toFps(3):
             acclimateSubtitleCheck = True
@@ -544,6 +600,7 @@ while True:
             
         if introCounter == toFps(9):
             assimilateAnnouncerCheck = True
+            impact()
         
         if introCounter == toFps(10):
             assimilateSubtitleCheck = True
@@ -552,18 +609,24 @@ while True:
 
         if mapAliveCubes[0][3] != 0:
             mapEnemies.pop(0)
+            pygame.mixer.Sound.stop(ambienceSound)
             assimilateAnnouncerCheck = False
             assimilateSubtitleCheck = False
             acclimateAnnouncerCheck = False
             acclimateSubtitleCheck = False
             introSequenceComplete = True
             repeatAnnouncerCheck = True
+            impact()
             crosshairCheck = True
             introLevel = True
             intLevelPosChange = True
             introSequence = False
             
     if introLevel:
+        
+        if musicPlayedCheck == False:
+            pygame.mixer.Sound.play(mainSound)
+            musicPlayedCheck = True
         
         ableToRestart = True
         
@@ -573,15 +636,6 @@ while True:
             glBindTexture(GL_TEXTURE_2D, Texture1.texID)
         
         introLevelCounter += 1
-        
-        if introLevelTimer:
-            introLevelCounter2 += 1
-            if introLevelCounter2 == toFps(1):
-                if introLevelTime != 0:
-                    introLevelTime -= 1
-                else:
-                    restart = True
-                introLevelCounter2 = 0
         
         if intLevelPosChange:
             map.pop(0)
@@ -601,8 +655,8 @@ while True:
             repeatSubtitleCheck = False
 
         if not introLevelComplete:
-            if not introLevelTimer:
-                introLevelTimer = True
+            if not levelTimer:
+                levelTimer = True
         
         endCubeCheck = []
         for i, v in enumerate(mapAliveCubes):
@@ -615,27 +669,93 @@ while True:
             introLevelComplete = True
             endCubeCheck.clear()
             
-        if introLevelComplete:
+        if introLevelComplete and not introLevelSequenceComplete:
             
-            camera.toPosition(85, 30)
-            glBindTexture(GL_TEXTURE_2D, Texture2.texID)
+            pascalTitleCheck = True
+            impact()
+            camera.toPosition(900, 900000)
             crosshairCheck = False
-            introLevelTimer = False
+            levelTimer = False
             repeatAnnouncerCheck = False
             repeatSubtitleCheck = False
             againCheck = False
             restartToolTipCheck = False
+            timeToTeleportCheck = True
+            introLevelSequenceComplete = True
+            
+        if timeToTeleportCheck:
+            timeToTeleport += 1
+        
+        if timeToTeleport == toFps(2) and introLevelComplete:
+            camera.toPosition(202, 107)
+            timeToTeleportCheck = False
+            timeToTeleport = 0
+            pascalTitleCheck = False
+            secondLevel = True
+            
+            levelTime = 5
+            levelTimer = True
+
+            decimateAnnouncerCheck = True
+            crosshairCheck = True
+            
+        if levelTimer:
+            introLevelCounter2 += 1
+            if introLevelCounter2 == toFps(1):
+                if levelTime != 0:
+                    levelTime -= 1
+                else:
+                    restart = True
+                introLevelCounter2 = 0
         
         if restart:
             camera.toPosition(125.6, 197)
             mapAliveCubes = mapEnemies.copy()
-            introLevelTime = 7
+            levelTime = 7
 
             againCheck = True
-            if introLevel:
-                repeatAnnouncerCheck = False
-                repeatSubtitleCheck = False
+            repeatAnnouncerCheck = False
+            repeatSubtitleCheck = False
+            restart = False
+            
+        if againCheck:
+            
+            repeatSubtitleCheck = False
+            
+            againCounter += 1
+            if againCounter == toFps(1):
+                restartToolTipCheck = True
+            if againCounter == toFps(3):
+                restartToolTipDone = True
+                restartToolTipCheck = False
+                againCheck = False
+                againCounter = 0
+                
+    if secondLevel:
+        secondLevelCounter += 1
+        
+        if secondLevelCounter == toFps(2):
+            decimateAnnouncerCheck = False
+        
+        introLevel = False
+        
+        if levelTimer:
+            secondLevelCounter2 += 1
+            if secondLevelCounter2 == toFps(1):
+                if levelTime != 0:
+                    levelTime -= 1
+                else:
+                    restart = True
+                secondLevelCounter2 = 0
+        
+        if restart:
+            camera.toPosition(202, 107)
+            mapAliveCubes = mapEnemies.copy()
+            levelTime = 5
+            
+            decimateAnnouncerCheck = False
 
+            againCheck = True
             restart = False
             
         if againCheck:
