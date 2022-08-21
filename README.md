@@ -21,7 +21,7 @@ A 3D game made using OpenGL and PyGame where you dash through cubes to destroy t
 
 # BUILD INSTRUCTIONS
 <ul>
-<li> Ensure pyopengl, pygame and pyinstaller are installed (the rest of the dependencies should come with Python 3, but please let me know if I missed one</li>
+<li> Ensure pyopengl, pygame, numpy and pyinstaller are installed (the rest of the dependencies should come with Python 3, but please let me know if I missed one</li>
 <li> Go to https://github.com/octantx/pascal-game/releases/tag/v0.1.0-alpha and scroll right to the bottom </li>
 <li> Click on the source code file of your choice to download </li>
 <li> Extract to a preferable location </li>
