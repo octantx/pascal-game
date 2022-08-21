@@ -51,15 +51,6 @@ class EventListener(object):
 
     def onKeyHold(self, key, func):
         self.register(self.keyHoldCallbacks, key, func)
-        
-    # def isKeyUp(self, callbacks, key):
-    #     if key in callbacks:
-    #         return False
-    #     else:
-    #         return True
-        
-    # def isKeyDown
-            
 
     def onMouseMove(self, func):
         self.mouseMoveCallbacks.append(func)

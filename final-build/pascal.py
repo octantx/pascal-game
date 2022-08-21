@@ -81,23 +81,7 @@ fullscreen = False
 
 # ? KEY OPERATIONS
 
-# # * change mode 1 up
-# def mode_up():
-#     global mode
-#     mode = (mode + 1) % max_modes
-    
-# # ? await mode up key
-# listener.onKeyUp(pygame.K_UP, mode_up)
-
-# # * change mode 1 down
-# def mode_down():
-#     global mode
-#     mode = (mode - 1) % max_modes
-    
-# # ? await mode up key
-# listener.onKeyUp(pygame.K_DOWN, mode_down)
-
-# * define what happens when the x key is clicked (turns on noclip)
+# * define what happens when the v key is clicked (turns on noclip)
 def on_v():
     global camera
     camera.collisionDetection = not camera.collisionDetection
@@ -170,7 +154,6 @@ def on_k():
         
 listener.onKeyDown(pygame.K_k, on_k)
 
-
 # ? move controls
 listener.onKeyHold(pygame.K_a, camera.strafeLeft)
 listener.onKeyHold(pygame.K_d, camera.strafeRight)
@@ -227,31 +210,7 @@ def drawPoint(pos, radius, r, g, b, a):
 
 # ? define how everything is drawn in the hud
 def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, enemies):
-    # wall lines
-    # walls are position in with start and in in the x and z coordinates
-    # if mode == 0:
-            
-    # if mode == 1:
-    #     for lineDef in allLineDefs:
-    #         # draw wall
-    #         mapStart = [lineDef.start[0] + offsetX, lineDef.start[1] + offsetY]
-    #         mapEnd = [lineDef.end[0] + offsetX, lineDef.end[1] + offsetY]
-    #         drawLine(mapStart, mapEnd, 1, 0.0, 0.0, 1.0, 1.0)
-    #         # draw facing dir
-    #         ln = 7
-    #         mx = lineDef.mid[0]
-    #         my = lineDef.mid[1]
-    #         nx = lineDef.normals[lineDef.facing][0] * ln
-    #         ny = lineDef.normals[lineDef.facing][1] * ln
-    #         if lineDef.facing == 1:
-    #             drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 0.0, 1.0, 1.0, 1.0)
-    #         else:
-    #             drawLine([mx + offsetX, my + offsetY], [mx + nx + offsetX, my + ny + offsetY], 2, 1.0, 0.0, 1.0, 1.0)
-    # if mode == 2:
-    #     solidBsp.drawSegs(drawLine, offsetX, offsetY)
-    # if mode == 3:
-    #     solidBsp.drawFaces(drawLine, camera.worldPos[0], camera.worldPos[2], offsetX, offsetY)
-            
+    
     if debug:
         for wall in walls:
             start = [wall.start[0] + offsetX, wall.start[1] + offsetY];
@@ -280,15 +239,7 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
         drawLine([displayWidth/2, displayHeight/2+2], [displayWidth/2, displayHeight/2+8], 2, .3, 1, .3, 1)
         drawLine([displayWidth/2-8, displayHeight/2], [displayWidth/2-2, displayHeight/2], 2, .3, 1, .3, 1)
         drawLine([displayWidth/2+2, displayHeight/2], [displayWidth/2+8, displayHeight/2], 2, .3, 1, .3, 1)
-    
-    # Text.drawImage('final-build/assets/textures/tim.png', defaultInfo)
-    
-    # Text.dialogue(0, "Hey welcome to ben, my namea jeff and i love to ben in the ben house! yeah oooo yeah and if you enter my house without entering the password i will have to beat you to death with a rock yeah yeah oh yeah yeah!", defaultInfo)
 
-    # if dialogue == True:
-    #     Text.dialogue(0, "OH NO OH AH AH OH NO THE FDA ARE GOING TO! TO RAID MY HOUSE!", defaultInfo)
-    
-    
     if debug:
         # ? CURRENT COORDS
         Text.drawText(0, 0, worldPosition, debugFont, green)
@@ -305,12 +256,7 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
         for i, v in enumerate(enemies):
             
             drawPoint((enemies[i][0] + offsetX, enemies[i][1] + offsetY), 2, 1, 0, 0, 1)
-        
-        # Text.drawText(0, 60, f"SPEED: {currentSpeed}", debugFont, green)
-        
-        # Text.drawText(0,80, f"CURRENT TIME: {str(completionTime)}", debugFont, green)
-        
-        # Text.drawText(0,100, f"TIME LEFT: {str(levelTime)}", debugFont, green)
+            
     else:
         if fpsTog:
             Text.drawText(0, 0, f"FPS: {currentFPS}", debugFont, green)
@@ -443,7 +389,6 @@ def draw():
         
     if decimateAnnouncerCheck:
         Text.drawText(displayWidth/2-160, displayHeight/2+100, titles[randTitle], announcerFont, white)
-    # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
     glPopMatrix()
     # END 2D
@@ -894,13 +839,6 @@ while True:
                 restartToolTipCheck = False
                 againCheck = False
                 againCounter = 0
-            
-    # counter += 1
-    # if counter == 60:
-    #     completionTime += 1
-    #     if levelTime != 0:
-    #         levelTime -= 1
-    #     counter = 0
         
     # ? drawing of everything in the game
     draw()
@@ -908,6 +846,3 @@ while True:
     drawCounter += 1
 
     actualTime = newTime # ms
-    
-    # glRotatef(0.01, 5, 0.1, 0.1)
-    
