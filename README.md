@@ -1,5 +1,9 @@
-# PASCAL
-A 3D game made using OpenGL and PyGame where you dash through cubes to destroy them as fast as possible, forever
+<div align="center">
+<h1>PASCAL</h1>
+<strong>A 3D game made using OpenGL and PyGame where you dash through cubes to destroy them as fast as possible, forever</strong>
+</div>
+
+<br>
 
 ## DESTROY THEM ALL
 ![REPEAT](https://user-images.githubusercontent.com/86143218/185782633-b2f1c073-8f37-4780-9964-d769a22f66fa.gif)
