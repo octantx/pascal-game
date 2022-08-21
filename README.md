@@ -31,3 +31,22 @@ A 3D game made using OpenGL and PyGame where you dash through cubes to destroy t
 <li> Use the command "pyinstaller --onefile --noconsole pascal.py" to build the game </li>
 <li> Navigate to /dist/ and place a copy of the /final-build/assets/ folder there </li>
 <li> The game should now be able to run with your changes! Let me know if there are any issues with these build instructions by opening an issue </li>
+
+# THANK YOU
+@jordansavant For the recreation of the doom engine in python I based this entire thing off of, your work is awesome.
+
+<br>
+Matthew Pablo at http://www.matthewpablo.com for the awesome backing track from https://opengameart.org/content/space-dimensions-8bitretro-version
+<br>
+yd on https://opengameart.org/content/dungeon-ambience for the ambient track at the start of the game
+<br>
+Independent.nu / qubodup on https://opengameart.org/content/37-hitspunches for the punch sound effects
+<br>
+Iwan Gabovitch on https://opengameart.org/content/synthesized-explosion for the explosion or "thud" sound effect
+<br>
+GatorTSE on https://www.deviantart.com/gatortse/art/Pile-of-bones-753339181 for the cool pixel art texture which was used for the walls
+<br>
+Declan Harbord for allowing me to ask him questions every 3 seconds, it was super helpful
+<br>
+Mila Petashvili for being super supportive and making sure I actually finish the project <3
+<br>
