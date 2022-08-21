@@ -38,6 +38,7 @@ counterFont = pygame.font.SysFont('jeff', 65)
 
 # * colours!
 yellow = (255, 255, 66, 255)
+red = (255, 0, 0, 255)
 green = (0, 255, 0, 255)
 purpleish = (218, 112, 214)
 white = (255, 255, 255, 255)
@@ -287,6 +288,7 @@ def drawHud(offsetX, offsetY, width, height, mode, camera, allLineDefs, walls, e
     # if dialogue == True:
     #     Text.dialogue(0, "OH NO OH AH AH OH NO THE FDA ARE GOING TO! TO RAID MY HOUSE!", defaultInfo)
     
+    
     if debug:
         # ? CURRENT COORDS
         Text.drawText(0, 0, worldPosition, debugFont, green)
@@ -324,18 +326,22 @@ def drawWalls(walls):
 
         c = wall.drawColor
         # glColor3f(255, 255, 255)
-        glColor3f(c[0], c[1]/255, c[2])
+        glColor3f(c[0]/(scoreStreak*1.25), c[1]/255, c[2]/(scoreStreak*1.25))
         
-        glTexCoord2f(1, 0)
+        if scoreStreak < 20 or scoreStreak > 40:
+            glTexCoord2f(1, 0)
         glVertex3f(wall.start[0],   0,              wall.start[1]) # low lef
         
-        glTexCoord2f(1, 1)
+        if scoreStreak < 40 or scoreStreak > 80:
+            glTexCoord2f(1, 1)
         glVertex3f(wall.start[0],   wall.height,    wall.start[1]) # up lef
         
-        glTexCoord2f(0, 1)
+        if scoreStreak < 40 or scoreStreak > 80:
+            glTexCoord2f(0, 1)
         glVertex3f(wall.end[0],     wall.height,    wall.end[1]) # up rig
         
-        glTexCoord2f(0, 0)
+        if scoreStreak < 80:
+            glTexCoord2f(0, 0)
         glVertex3f(wall.end[0],     0,              wall.end[1]) # up lef
         
         glEnd()
@@ -420,12 +426,23 @@ def draw():
     if levelTimer:
         Text.drawText(displayWidth/2-17, displayHeight/2+295, str(levelTime), counterFont, purpleish)
         
+    if scoreShow:
+        Text.drawText(0, displayHeight-50, str(score), counterFont, green)
+    if streakShow:
+        Text.drawText(displayWidth-50, displayHeight-50, str(scoreStreak-1), counterFont, red)
+        
     if pascalTitleCheck:
         Text.drawText(displayWidth/2-373, displayHeight/2-100, "PASCAL", introFont, purpleish)
+        Text.drawText(displayWidth/2-50, displayHeight/2-180, str(score), counterFont, green) 
+        Text.drawText(displayWidth/2, displayHeight/2-225, str(scoreStreak-1), counterFont, red) 
+        
+    if resetTitleCheck:
+        Text.drawText(displayWidth/2-310, displayHeight/2-100, "RESET", introFont, purpleish)
+        Text.drawText(displayWidth/2-36, displayHeight/2-180, str(score), counterFont, green) 
+        Text.drawText(displayWidth/2, displayHeight/2-225, str(scoreStreak-1), counterFont, red) 
         
     if decimateAnnouncerCheck:
-        Text.drawText(displayWidth/2-170, displayHeight/2+100, "DECIMATE", announcerFont, white)
-        
+        Text.drawText(displayWidth/2-160, displayHeight/2+100, titles[randTitle], announcerFont, white)
     # Text.dialogue(0, "your mother is particularly good looking", defaultInfo)
     
     glPopMatrix()
@@ -439,6 +456,8 @@ debug = False
 fpsTog = False
 musicPlayedCheck = False
 ambiencePlayedCheck = False
+scoreShow = False
+streakShow = False
 
 restart = False
 againCheck = False
@@ -461,13 +480,14 @@ levelTimer = False
 repeatSubtitleCheck = False
 introLevelComplete = False
 pascalTitleCheck = False
-
 introLevelSequenceComplete = False
 
 secondLevel = False
 secondLevelTimer = False
 decimateAnnouncerCheck = False
 secondLevelComplete = False
+resetTitleCheck = False
+secondLevelSequenceComplete = False
 
 # ? -----------------------
 
@@ -475,6 +495,24 @@ glBindTexture(GL_TEXTURE_2D, Texture2.texID)
 
 # ? -----------------------
 
+titles = [
+    "DECIMATE",
+    "DESTROY",
+    "ASSIMILATE",
+    "ANNIHILIATE",
+    "FOREVER",
+    "DESOLATE",
+    "DEVESTATE",
+    "PULVERIZE",
+    "VAPORIZE"
+]
+
+currentMoveSpeed = 0
+
+score = 0
+scoreStreak = 1
+scoreMultiplier = 1
+scorePunisher = 0
 timer = 0
 counter = 0
 againCounter = 0
@@ -548,6 +586,8 @@ while True:
         if round(referencePos[0]) == mapAliveCubes[idx][0] and round(referencePos[1]) == mapAliveCubes[idx][1] or margin < .30:
             if isDashing:
                 mapAliveCubes.pop(idx)
+                score += round(100 * scoreMultiplier + (scoreStreak * 5))
+                scoreStreak += 1
                 
                 whichHit = random.randint(0,2)
                 
@@ -562,16 +602,18 @@ while True:
                 pass
             else:
                 restart = True
+                score -= (50 + scorePunisher)
+                scoreStreak = 1
 
     if isDashing:
         
         dashSpeedCount += 1
         dashLengthCount += 1
         while dashSpeedCount < dashSpeedLength:
-            camera.moveSpeed = 2
+            camera.moveSpeed = 2 + currentMoveSpeed
             break
         if dashSpeedCount > dashSpeedLength:
-            camera.moveSpeed = .7
+            camera.moveSpeed = .7 + currentMoveSpeed
         if dashLengthCount > dashLength:
             
                 
@@ -619,6 +661,8 @@ while True:
             impact()
             crosshairCheck = True
             introLevel = True
+            scoreShow = True
+            streakShow = True
             intLevelPosChange = True
             introSequence = False
             
@@ -671,6 +715,9 @@ while True:
             
         if introLevelComplete and not introLevelSequenceComplete:
             
+            scoreShow = False
+            streakShow = False
+            decimateAnnouncerCheck = False
             pascalTitleCheck = True
             impact()
             camera.toPosition(900, 900000)
@@ -688,14 +735,25 @@ while True:
         
         if timeToTeleport == toFps(2) and introLevelComplete:
             camera.toPosition(202, 107)
+            
+            if random.randint(1, 500) == 500:
+                sammich == True
+                
             timeToTeleportCheck = False
             timeToTeleport = 0
+            score += levelTime * 100
             pascalTitleCheck = False
             secondLevel = True
+            secondLevelSequenceComplete = False
+            secondLevelComplete = False
+            introLevel = False
             
             levelTime = 5
             levelTimer = True
+            scoreShow = True
+            streakShow = True
 
+            randTitle = random.randint(0,8)
             decimateAnnouncerCheck = True
             crosshairCheck = True
             
@@ -721,6 +779,7 @@ while True:
         if againCheck:
             
             repeatSubtitleCheck = False
+            decimateAnnouncerCheck = False
             
             againCounter += 1
             if againCounter == toFps(1):
@@ -732,12 +791,76 @@ while True:
                 againCounter = 0
                 
     if secondLevel:
+        
+        if sammich:
+            glBindTexture(GL_TEXTURE_2D, Texture3.texID)
+        else:
+            glBindTexture(GL_TEXTURE_2D, Texture1.texID)
+        
         secondLevelCounter += 1
         
         if secondLevelCounter == toFps(2):
             decimateAnnouncerCheck = False
         
-        introLevel = False
+        endCubeCheck = []
+        for i, v in enumerate(mapAliveCubes):
+            if mapAliveCubes[i][3] != 11:
+                endCubeCheck.append(False)
+            else:
+                endCubeCheck.append(True)
+        
+        if True not in endCubeCheck:
+            secondLevelComplete = True
+            endCubeCheck.clear()
+            
+        if secondLevelComplete and not secondLevelSequenceComplete:
+            
+            resetTitleCheck = True
+            decimateAnnouncerCheck = False
+
+            impact()
+            camera.toPosition(900, 900000)
+            crosshairCheck = False
+            levelTimer = False
+            scoreShow = False
+            streakShow = False
+            decimateAnnouncerCheck = False
+            againCheck = False
+            restartToolTipCheck = False
+            timeToTeleportCheck = True
+            secondLevelSequenceComplete = True
+            
+        if timeToTeleportCheck:
+            timeToTeleport += 1
+        
+        if timeToTeleport == toFps(2) and secondLevelComplete:
+            camera.toPosition(125.6, 197)
+            currentMoveSpeed += .025
+            scoreMultiplier += .25
+            scorePunisher += 100
+            
+            if random.randint(1, 500) == 500:
+                sammich == True
+                
+            camera.setYaw(math.pi)
+            mapAliveCubes = mapEnemies.copy()
+                
+            timeToTeleportCheck = False
+            timeToTeleport = 0
+            resetTitleCheck = False # * replace
+            introLevel = True
+            introLevelComplete = False
+            introLevelSequenceComplete = False
+            secondLevel = False
+            randTitle = random.randint(0,8)
+            decimateAnnouncerCheck = True
+            
+            levelTime = 7
+            levelTimer = True
+            scoreShow = True
+            streakShow = True
+
+            crosshairCheck = True
         
         if levelTimer:
             secondLevelCounter2 += 1
@@ -761,6 +884,7 @@ while True:
         if againCheck:
             
             repeatSubtitleCheck = False
+            decimateAnnouncerCheck = False
             
             againCounter += 1
             if againCounter == toFps(1):
