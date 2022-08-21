@@ -34,7 +34,6 @@ A 3D game made using OpenGL and PyGame where you dash through cubes to destroy t
 
 # THANK YOU
 @jordansavant For the recreation of the doom engine in python I based this entire thing off of, your work is awesome.
-
 <br>
 Matthew Pablo at http://www.matthewpablo.com for the awesome backing track from https://opengameart.org/content/space-dimensions-8bitretro-version
 <br>
