@@ -1,4 +1,4 @@
-import pygame, pascalengine, math, os, random
+import pygame, pascalengine, math, os, random, sys
 from pascalengine.eventlistener import EventListener
 from pascalengine.player import Camera
 from pascalengine.spriterenderer import Text
@@ -53,7 +53,7 @@ os.environ['SDL_VIDEO_CENTERED'] = '1' # center window on screen
 
 screen = pygame.display.set_mode((displayWidth, displayHeight), DOUBLEBUF|OPENGL) # build window with opengl
 pygame.display.set_caption("Pascal")
-icon = pygame.image.load("final-build/assets/textures/tim.png")
+icon = pygame.image.load("assets/textures/tim.png")
 pygame.display.set_icon(icon)
 pygame.mouse.set_visible(False)
 pygame.event.set_grab(True)
@@ -165,8 +165,8 @@ listener.onMouseMove(camera.applyMouseMove)
 
 # ! textures and sounds
 
-texturePath = "final-build/assets/textures/"
-soundPath = "final-build/assets/sound/"
+texturePath = "assets/textures/"
+soundPath = "assets/sound/"
 
 Texture1=Texture(texturePath + "bones.png")
 Texture2=Texture(texturePath + "voidwalls.png")
